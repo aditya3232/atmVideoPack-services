@@ -6,21 +6,23 @@ import (
 	"github.com/aditya3232/gatewatchApp-services.git/config"
 	"github.com/elastic/go-elasticsearch"
 	"github.com/minio/minio-go/v7"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-type Database struct {
-	db    *gorm.DB
-	redis *redis.Client
-	es    *elasticsearch.Client
-	minio *minio.Client
+type Connection struct {
+	db       *gorm.DB
+	redis    *redis.Client
+	es       *elasticsearch.Client
+	minio    *minio.Client
+	rabbitmq *amqp.Connection
 }
 
 var (
-	debug    int = config.CONFIG.DEBUG
-	database Database
-	initOnce sync.Once
+	debug      int = config.CONFIG.DEBUG
+	connection Connection
+	initOnce   sync.Once
 )
 
 // untuk matikan koneksi ke database
@@ -29,16 +31,20 @@ var (
 // - dan untk elastic di log nya
 func init() {
 	initOnce.Do(func() {
-		db, err := connectDatabaseGatewatch()
+		db, err := connectDatabaseMysql()
 		if err != nil {
 			// log.Panic(err)
 			panic(err)
 		}
-		minio, err := ConnectMinioGatewatch()
+		minio, err := ConnectMinio()
 		if err != nil {
 			panic(err)
 		}
-		// redis, err := ConnectRedisGatewatch()
+		rabbitmq, err := ConnectRabbitMQ()
+		if err != nil {
+			panic(err)
+		}
+		// redis, err := ConnectRedis()
 		// if err != nil {
 		// 	panic(err)
 		// }
@@ -47,9 +53,10 @@ func init() {
 		// 	panic(err)
 		// }
 
-		database = Database{
-			db:    db,
-			minio: minio,
+		connection = Connection{
+			db:       db,
+			minio:    minio,
+			rabbitmq: rabbitmq,
 			// redis: redis,
 			// es: es,
 		}
@@ -57,19 +64,26 @@ func init() {
 }
 
 func Close() {
-	if database.db != nil {
-		sqlDB, _ := database.db.DB()
+	if connection.db != nil {
+		sqlDB, _ := connection.db.DB()
 		sqlDB.Close()
-		database.db = nil
+		connection.db = nil
+	}
+	if connection.minio != nil {
+		connection.minio = nil
+	}
+	if connection.rabbitmq != nil {
+		connection.rabbitmq.Close()
+		connection.rabbitmq = nil
 	}
 
-	// if database.redis != nil {
-	// 	database.redis.Close()
-	// 	database.redis = nil
+	// if connection.redis != nil {
+	// 	connection.redis.Close()
+	// 	connection.redis = nil
 	// }
 
-	// if database.es != nil {
-	// 	database.es.Close()
-	// 	database.es = nil
+	// if connection.es != nil {
+	// 	connection.es.Close()
+	// 	connection.es = nil
 	// }
 }

@@ -38,11 +38,17 @@ type envConfigs struct {
 	MINIO_ACCESS_KEY string `mapstructure:"MINIO_ACCESS_KEY"`
 	MINIO_SECRET_KEY string `mapstructure:"MINIO_SECRET_KEY"`
 	MINIO_BUCKET     string `mapstructure:"MINIO_BUCKET"`
+
+	// rabbitmq
+	RABBIT_HOST string `mapstructure:"RABBIT_HOST"`
+	RABBIT_PORT string `mapstructure:"RABBIT_PORT"`
+	RABBIT_USER string `mapstructure:"RABBIT_USER"`
+	RABBIT_PASS string `mapstructure:"RABBIT_PASS"`
 }
 
 func load() (config *envConfigs) {
 	// Tell viper the path/location of your env file. If it is root just add "."
-	viper.AddConfigPath("../gatewatchApp-services/config")
+	viper.AddConfigPath("../../atmVideoPack-services/config")
 
 	// Tell viper the name of your file
 	viper.SetConfigName(".env")
