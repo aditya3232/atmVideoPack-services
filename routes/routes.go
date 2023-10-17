@@ -1,10 +1,8 @@
 package routes
 
 import (
-	"github.com/aditya3232/gatewatchApp-services.git/config"
 	"github.com/aditya3232/gatewatchApp-services.git/connection"
 	"github.com/aditya3232/gatewatchApp-services.git/handler"
-	"github.com/aditya3232/gatewatchApp-services.git/middleware"
 	"github.com/aditya3232/gatewatchApp-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +20,8 @@ func Initialize(router *gin.Engine) {
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
 
-	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	// tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	tbTidRoutes := api.Group("/device")
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 
@@ -30,4 +29,10 @@ func Initialize(router *gin.Engine) {
 
 func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler) {
 	group.POST("/create", handler.CreateTbTid)
+	group.POST("/getonebyid", handler.GetOneByID)
+
+	// GetStreamVideo
+	// group.GET("/getstreamvideo", handler.GetStreamVideo)
+	group.GET("/getstreamvideo/:id", handler.GetStreamVideo)
+
 }

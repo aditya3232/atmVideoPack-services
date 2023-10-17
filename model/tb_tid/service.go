@@ -2,6 +2,7 @@ package tb_tid
 
 type Service interface {
 	Create(tbTidInput TbTidCreateInput) (TbTid, error)
+	GetOneByID(input GetOneByIDInput) (TbTid, error)
 }
 
 type service struct {
@@ -26,4 +27,16 @@ func (s *service) Create(tbTidInput TbTidCreateInput) (TbTid, error) {
 	}
 
 	return newTbTid, nil
+}
+
+func (s *service) GetOneByID(input GetOneByIDInput) (TbTid, error) {
+	tbTid, err := s.tbTidRepository.GetOneByID(input.ID)
+	if err != nil {
+		return tbTid, err
+	}
+	if tbTid.ID == 0 {
+		return tbTid, nil
+	}
+
+	return tbTid, nil
 }

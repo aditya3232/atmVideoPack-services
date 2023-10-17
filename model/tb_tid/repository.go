@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type Repository interface {
 	Create(tbTid TbTid) (TbTid, error)
+	GetOneByID(id int) (TbTid, error)
 }
 
 type repository struct {
@@ -18,6 +19,17 @@ func (r *repository) Create(tbTid TbTid) (TbTid, error) {
 	err := r.db.Create(&tbTid).Error
 	if err != nil {
 		return TbTid{}, err
+	}
+
+	return tbTid, nil
+}
+
+func (r *repository) GetOneByID(id int) (TbTid, error) {
+	var tbTid TbTid
+
+	err := r.db.Where("id = ?", id).First(&tbTid).Error
+	if err != nil {
+		return tbTid, err
 	}
 
 	return tbTid, nil
