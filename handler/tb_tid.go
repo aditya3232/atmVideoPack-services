@@ -113,21 +113,18 @@ func (h *TbTidHandler) GetStreamVideo(c *gin.Context) {
 	// Ambil video dari URL pihak ketiga
 	response, err := http.Get(streamingURL)
 	if err != nil {
-		errors := helper.FormatError(err)
-		errorMessage := gin.H{"errors": errors}
-		response := helper.APIResponse(constant.CannotProcessRequest, http.StatusBadRequest, errorMessage)
 		log.Error(err)
-		c.JSON(http.StatusBadRequest, response)
+		// Tampilkan pesan kesalahan HTML sebagai respons
+		errorMessage := generateHTMLErrorMessage()
+		// Mengirimkan respons dengan HTML
+		c.Data(http.StatusInternalServerError, "text/html", []byte(errorMessage))
 		return
 	}
 
 	defer response.Body.Close()
 
-	// Set header "Content-Type" ke "video/mp4"
-	// c.Header("Content-Type", "video/ogg")
 	contentType := response.Header.Get("Content-Type")
 	c.Header("Content-Type", contentType)
-	// log.Info(contentType)
 
 	// Salin isi response body ke response context Gin
 	_, err = io.Copy(c.Writer, response.Body)
@@ -140,4 +137,29 @@ func (h *TbTidHandler) GetStreamVideo(c *gin.Context) {
 		return
 	}
 
+}
+
+func generateHTMLErrorMessage() string {
+	errorMessage := `
+    <!DOCTYPE html>
+	<html>
+	<head>
+		<title>Terjadi Kesalahan Server</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-12 text-center mt-5">
+					<h1 class="display-4">Terjadi Kesalahan Server</h1>
+					<p class="lead">Maaf, terjadi kesalahan saat memproses permintaan Anda.</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	</html>
+
+	`
+
+	return errorMessage
 }
