@@ -8,6 +8,7 @@ import (
 	"github.com/aditya3232/gatewatchApp-services.git/log"
 	"github.com/aditya3232/gatewatchApp-services.git/model/get_human_detection_from_elastic"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 type GetHumanDetectionFromElasticHandler struct {
@@ -19,12 +20,20 @@ func NewGetHumanDetectionFromElasticHandler(getHumanDetectionFromElasticService 
 }
 
 func (h *GetHumanDetectionFromElasticHandler) FindAll(c *gin.Context) {
-	id := c.Query("id")
-	date_time := c.Query("date_time")
-	person := c.Query("person")
-	file_name_capture_human_detection := c.Query("file_name_capture_human_detection")
+	var input get_human_detection_from_elastic.FindAllElasticHumanDetectionInput
 
-	elasticHumanDetections, err := h.getHumanDetectionFromElasticService.FindAll(&id, &date_time, &person, &file_name_capture_human_detection)
+	// input from form-data
+	err := c.ShouldBindWith(&input, binding.Form)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+		response := helper.APIResponse(constant.InvalidRequest, http.StatusBadRequest, errorMessage)
+		log.Error(err)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	elasticHumanDetections, err := h.getHumanDetectionFromElasticService.FindAll(input)
 	if err != nil {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}

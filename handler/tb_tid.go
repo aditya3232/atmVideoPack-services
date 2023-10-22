@@ -80,6 +80,8 @@ func (h *TbTidHandler) CreateTbTid(c *gin.Context) {
 func (h *TbTidHandler) GetOneByID(c *gin.Context) {
 	var input tb_tid.GetOneByIDInput
 
+	fmt.Println(input)
+
 	// input from form-data
 	err := c.ShouldBindWith(&input, binding.Form)
 	if err != nil {

@@ -45,5 +45,5 @@ func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler)
 }
 
 func configureElasticHumanDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetHumanDetectionFromElasticHandler) {
-	group.GET("/getall", handler.FindAll)
+	group.POST("/getall", handler.FindAll)
 }
