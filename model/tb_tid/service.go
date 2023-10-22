@@ -1,8 +1,11 @@
 package tb_tid
 
+import "github.com/aditya3232/gatewatchApp-services.git/helper"
+
 type Service interface {
 	Create(tbTidInput TbTidCreateInput) (TbTid, error)
 	GetOneByID(input GetOneByIDInput) (TbTid, error)
+	GetAll(filter map[string]string, pagination helper.Pagination, sort helper.Sort) ([]TbTid, helper.Pagination, error)
 }
 
 type service struct {
@@ -39,4 +42,13 @@ func (s *service) GetOneByID(input GetOneByIDInput) (TbTid, error) {
 	}
 
 	return tbTid, nil
+}
+
+func (s *service) GetAll(filter map[string]string, pagination helper.Pagination, sort helper.Sort) ([]TbTid, helper.Pagination, error) {
+	tbEntries, pagination, err := s.tbTidRepository.GetAll(filter, pagination, sort)
+	if err != nil {
+		return nil, helper.Pagination{}, err
+	}
+
+	return tbEntries, pagination, nil
 }

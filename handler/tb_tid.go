@@ -21,6 +21,33 @@ func NewTbTidHandler(tbTidService tb_tid.Service) *TbTidHandler {
 	return &TbTidHandler{tbTidService}
 }
 
+func (h *TbTidHandler) GetAllTbEntries(c *gin.Context) {
+	filter := helper.QueryParamsToMap(c, tb_tid.TbTid{})
+	page := helper.NewPagination(helper.StrToInt(c.Query("page")), helper.StrToInt(c.Query("limit")))
+	sort := helper.NewSort(c.Query("sort"), c.Query("order"))
+
+	TbTids, page, err := h.tbTidService.GetAll(filter, page, sort)
+	if err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+		response := helper.APIDataTableResponse(constant.CannotProcessRequest, http.StatusBadRequest, helper.Pagination{}, errorMessage)
+		log.Error(err, " from ip address: ", c.ClientIP())
+		c.JSON(response.Meta.Code, response)
+		return
+	}
+
+	if len(TbTids) == 0 {
+		errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
+		response := helper.APIDataTableResponse(constant.DataNotFound, http.StatusNotFound, helper.Pagination{}, errorMessage)
+		log.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
+		c.JSON(response.Meta.Code, response)
+		return
+	}
+
+	response := helper.APIDataTableResponse(constant.DataFound, http.StatusOK, page, tb_tid.TbTidGetAllFormat(TbTids))
+	c.JSON(response.Meta.Code, response)
+}
+
 func (h *TbTidHandler) CreateTbTid(c *gin.Context) {
 	var input tb_tid.TbTidCreateInput
 
