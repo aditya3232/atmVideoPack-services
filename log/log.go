@@ -5,10 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
@@ -19,37 +15,28 @@ import (
 
 var New = logrus.New()
 
-func init() {
-	log := New
+// func init() {
+// 	log := New
 
-	os.Chdir("../atmVideoPack-services/log")
-	file, err := os.OpenFile("log.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Warnf("error opening file: %v", err)
-	}
+// 	os.Chdir("../atmVideoPack-services/log")
+// 	file, err := os.OpenFile("log.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+// 	if err != nil {
+// 		log.Warnf("error opening file: %v", err)
+// 	}
 
-	mw := io.MultiWriter(os.Stdout, file)
-	log.SetOutput(mw)
+// 	mw := io.MultiWriter(os.Stdout, file)
+// 	log.SetOutput(mw)
 
-	log.Formatter = &logrus.JSONFormatter{
-		TimestampFormat: "15:04:05 02-01-2006",
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyTime:  "timestamp",
-			logrus.FieldKeyLevel: "level",
-			logrus.FieldKeyMsg:   "message",
-		},
-		DisableHTMLEscape: false,
-	}
-
-	// goroutine deletlog
-	go func() {
-		for {
-			time.Sleep(24 * time.Hour)
-			// DeleteOldLog()
-		}
-	}()
-
-}
+// 	log.Formatter = &logrus.JSONFormatter{
+// 		TimestampFormat: "15:04:05 02-01-2006",
+// 		FieldMap: logrus.FieldMap{
+// 			logrus.FieldKeyTime:  "timestamp",
+// 			logrus.FieldKeyLevel: "level",
+// 			logrus.FieldKeyMsg:   "message",
+// 		},
+// 		DisableHTMLEscape: false,
+// 	}
+// }
 
 // sendLogToElasticsearch sends the log to Elasticsearch
 func sendLogToElasticsearch(level logrus.Level, args ...interface{}) {
@@ -196,48 +183,4 @@ func WithField(key string, value interface{}) *logrus.Entry {
 
 func WithError(err error) *logrus.Entry {
 	return New.WithError(err)
-}
-
-func DeleteOldLog() {
-	for {
-		// get current time
-		now := time.Now()
-		// get 1 minute ago
-		// ago := now.Add(-1 * time.Minute)
-		// get 2 months ago
-		// ago := now.AddDate(0, -2, 0)
-		// get 1 month ago
-		ago := now.AddDate(0, -1, 0)
-
-		// convert to string 01:17:31 16-08-2023
-		agoStr := ago.Format("15:04:05 02-01-2006")
-
-		// Prepare the Elasticsearch query as a map
-		query := map[string]interface{}{
-			"query": map[string]interface{}{
-				"range": map[string]interface{}{
-					"timestamp": map[string]interface{}{
-						"lte": agoStr,
-					},
-				},
-			},
-		}
-
-		// Convert the query map to JSON
-		queryJSON, err := json.Marshal(query)
-		if err != nil {
-			log.Println("Error marshaling JSON:", err)
-			continue
-		}
-
-		// Delete documents using DeleteByQuery
-		_, err = connection.ElasticSearch().DeleteByQuery([]string{"gatewatch_log"}, strings.NewReader(string(queryJSON)))
-		if err != nil {
-			fmt.Println(err)
-			// log.Println("Error deleting documents:", err)
-		}
-		Info("delete old log success")
-		// sleep for 10 minute
-		time.Sleep(10 * time.Minute)
-	}
 }

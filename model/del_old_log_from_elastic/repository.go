@@ -63,7 +63,6 @@ func (r *repository) DelOneMonthOldLogs() error {
 		// sleep for 10 minute
 		time.Sleep(10 * time.Minute)
 
-		return nil
 	}
 
 }

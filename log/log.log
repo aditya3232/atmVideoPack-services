@@ -88,3 +88,7 @@
 {"level":"info","message":"delete old log success","timestamp":"09:25:05 23-10-2023"}
 {"level":"info","message":"cronjob started","timestamp":"09:25:47 23-10-2023"}
 {"level":"info","message":"delete old log success","timestamp":"09:25:52 23-10-2023"}
+{"level":"info","message":"cronjob started","timestamp":"09:40:27 23-10-2023"}
+{"level":"info","message":"delete old log success","timestamp":"09:40:32 23-10-2023"}
+{"level":"info","message":"cronjob started","timestamp":"09:41:26 23-10-2023"}
+{"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"09:42:05 23-10-2023"}

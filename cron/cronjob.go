@@ -23,8 +23,8 @@ func init() {
 		))
 
 		// hapus tiap tengah malam
-		// cron.AddFunc("0 0 * * *", func() {
-		cron.AddFunc("@every 5s", func() {
+		cron.AddFunc("0 0 * * *", func() {
+			// cron.AddFunc("@every 5s", func() {
 			delOldLogFromElasticRepository := del_old_log_from_elastic.NewRepository(connection.ElasticSearch())
 			delOldLogFromElasticService := del_old_log_from_elastic.NewService(delOldLogFromElasticRepository)
 
