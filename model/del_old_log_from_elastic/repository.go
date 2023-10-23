@@ -30,7 +30,7 @@ func (r *repository) DelOneMonthOldLogs() error {
 	// oneMinuteAgo := time.Now().Add(-1 * time.Minute)
 	// oneMinuteAgoStr := oneMinuteAgo.Format("15:04:05 02-01-2006")
 
-	// oneDayAgo
+	// delete minimum one day ago and others
 	// oneDayAgo := time.Now().AddDate(0, 0, -1)
 	// oneDayAgoStr := oneDayAgo.Format("15:04:05 02-01-2006")
 

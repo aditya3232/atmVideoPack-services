@@ -26,12 +26,16 @@ func (r *repository) DelOneMonthOldHumanDetectionLogs() error {
 	oneMonthAgo := time.Now().AddDate(0, -1, 0)
 	oneMonthAgoStr := oneMonthAgo.Format("15:04:05 02-01-2006")
 
+	// delete minimum one day ago and others
+	// oneDayAgo := time.Now().AddDate(0, 0, -1)
+	// oneDayAgoStr := oneDayAgo.Format("15:04:05 02-01-2006")
+
 	for {
 		// Prepare the Elasticsearch query as a map
 		query := map[string]interface{}{
 			"query": map[string]interface{}{
 				"range": map[string]interface{}{
-					"timestamp": map[string]interface{}{
+					"date_time": map[string]interface{}{
 						"lte": oneMonthAgoStr,
 					},
 				},
@@ -46,7 +50,7 @@ func (r *repository) DelOneMonthOldHumanDetectionLogs() error {
 		}
 
 		// Delete documents using DeleteByQuery
-		_, err = r.elasticsearch.DeleteByQuery([]string{"atm_video_pack_log"}, strings.NewReader(string(queryJSON)))
+		_, err = r.elasticsearch.DeleteByQuery([]string{"human_detection_index"}, strings.NewReader(string(queryJSON)))
 		if err != nil {
 			return err
 		}
