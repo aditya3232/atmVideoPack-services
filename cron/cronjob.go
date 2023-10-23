@@ -6,6 +6,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_human_detection_from_elastic"
 
 	"github.com/robfig/cron/v3"
 )
@@ -34,6 +35,29 @@ func init() {
 			}
 
 			log_function.Info("delete log in elastic berhasil dilakukan")
+		})
+
+		cron.Start()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cron := cron.New(cron.WithChain(
+			cron.SkipIfStillRunning(cron.DefaultLogger),
+		))
+
+		cron.AddFunc("0 0 * * *", func() {
+			// cron.AddFunc("@every 5s", func() {
+			delOldHumanDetectionFromElasticRepository := del_old_log_human_detection_from_elastic.NewRepository(connection.ElasticSearch())
+			delOldHumanDetectionFromElasticService := del_old_log_human_detection_from_elastic.NewService(delOldHumanDetectionFromElasticRepository)
+
+			err := delOldHumanDetectionFromElasticService.DelOneMonthOldHumanDetectionLogs()
+			if err != nil {
+				log_function.Error("Error delete human detection:", err)
+			}
+
+			log_function.Info("delete human detection in elastic berhasil dilakukan")
 		})
 
 		cron.Start()
