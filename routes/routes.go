@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"github.com/aditya3232/atmVideoPack-services.git/config"
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/aditya3232/atmVideoPack-services.git/handler"
+	"github.com/aditya3232/atmVideoPack-services.git/middleware"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
@@ -24,9 +26,8 @@ func Initialize(router *gin.Engine) {
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
 
-	// tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
-	tbTidRoutes := api.Group("/device")
-	elasticHumanDetectionIndexRoutes := api.Group("/humandetection")
+	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	elasticHumanDetectionIndexRoutes := api.Group("/humandetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureElasticHumanDetectionIndexRoutes(elasticHumanDetectionIndexRoutes, elasticHumanDetectionIndexHandler)

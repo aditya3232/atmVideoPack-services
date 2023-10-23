@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
@@ -44,7 +46,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 					"must": []map[string]interface{}{},
 				},
 			},
-			"size": 1000,
+			"size": 100,
 		}
 	}
 
@@ -97,8 +99,17 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 			"query": map[string]interface{}{
 				"match_all": map[string]interface{}{},
 			},
-			"size": 1000,
+			"size": 100,
 		}
+	}
+
+	// Tambahkan sorting berdasarkan field date_time secara descending
+	query["sort"] = []map[string]interface{}{
+		{
+			"date_time.keyword": map[string]interface{}{
+				"order": "asc",
+			},
+		},
 	}
 
 	// done=========================================================================================================================================
@@ -132,16 +143,28 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 	hits, _ = rdb["hits"].(map[string]interface{})["hits"].([]interface{})
 
 	for _, hit := range hits {
-
 		edh.ID = hit.(map[string]interface{})["_id"].(string)
-		tidID, ok := hit.(map[string]interface{})["_source"].(map[string]interface{})["tid_id"].(float64)
-		if ok {
-			tidIDInt := int(tidID)
-			edh.TidID = tidIDInt
+
+		source, ok := hit.(map[string]interface{})["_source"].(map[string]interface{})
+		if !ok {
+			continue // Skip this iteration if _source is not found in the hit
 		}
-		edh.DateTime = hit.(map[string]interface{})["_source"].(map[string]interface{})["date_time"].(string)
-		edh.Person = hit.(map[string]interface{})["_source"].(map[string]interface{})["person"].(string)
-		edh.FileNameCaptureHumanDetection = hit.(map[string]interface{})["_source"].(map[string]interface{})["file_name_capture_human_detection"].(string)
+
+		tidID, ok := source["tid_id"]
+		if ok {
+			tidIDInt, err := strconv.Atoi(fmt.Sprintf("%v", tidID))
+			if err != nil {
+				// Handle the error if the conversion fails
+				return []ElasticHumanDetection{}, err
+			}
+			edh.TidID = tidIDInt
+		} else {
+			edh.TidID = 0 // or set it to another default value if needed
+		}
+
+		edh.DateTime = source["date_time"].(string)
+		edh.Person = source["person"].(string)
+		edh.FileNameCaptureHumanDetection = source["file_name_capture_human_detection"].(string)
 
 		edhs = append(edhs, edh)
 	}
