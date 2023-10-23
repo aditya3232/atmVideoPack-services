@@ -6,9 +6,9 @@ import (
 	"mime/multipart"
 	"path/filepath"
 
-	"github.com/aditya3232/gatewatchApp-services.git/connection"
-	"github.com/aditya3232/gatewatchApp-services.git/helper"
-	"github.com/aditya3232/gatewatchApp-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/connection"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	"github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 )

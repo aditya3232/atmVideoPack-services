@@ -5,10 +5,11 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/aditya3232/gatewatchApp-services.git/constant"
-	"github.com/aditya3232/gatewatchApp-services.git/helper"
-	"github.com/aditya3232/gatewatchApp-services.git/log"
-	"github.com/aditya3232/gatewatchApp-services.git/model/tb_tid"
+	"github.com/aditya3232/atmVideoPack-services.git/constant"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	"github.com/aditya3232/atmVideoPack-services.git/log"
+	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -31,7 +32,7 @@ func (h *TbTidHandler) GetAllTbEntries(c *gin.Context) {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIDataTableResponse(constant.CannotProcessRequest, http.StatusBadRequest, helper.Pagination{}, errorMessage)
-		log.Error(err, " from ip address: ", c.ClientIP())
+		log_function.Error(err, " from ip address: ", c.ClientIP())
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -39,7 +40,7 @@ func (h *TbTidHandler) GetAllTbEntries(c *gin.Context) {
 	if len(TbTids) == 0 {
 		errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
 		response := helper.APIDataTableResponse(constant.DataNotFound, http.StatusNotFound, helper.Pagination{}, errorMessage)
-		log.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
+		log_function.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -57,7 +58,7 @@ func (h *TbTidHandler) CreateTbTid(c *gin.Context) {
 		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIResponse(constant.InvalidRequest, http.StatusBadRequest, errorMessage)
-		log.Error(err)
+		log_function.Error(err)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -67,13 +68,13 @@ func (h *TbTidHandler) CreateTbTid(c *gin.Context) {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIResponse(constant.CannotProcessRequest, http.StatusBadRequest, errorMessage)
-		log.Error(err)
+		log_function.Error(err)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	response := helper.APIResponse(constant.SuccessMessage, http.StatusOK, tb_tid.TbTidCreateFormat(newTbTid))
-	log.Info("Tid berhasil dibuat")
+	log_function.Info("Tid berhasil dibuat")
 	c.JSON(http.StatusOK, response)
 }
 

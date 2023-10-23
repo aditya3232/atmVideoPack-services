@@ -3,10 +3,10 @@ package handler
 import (
 	"net/http"
 
-	"github.com/aditya3232/gatewatchApp-services.git/constant"
-	"github.com/aditya3232/gatewatchApp-services.git/helper"
-	"github.com/aditya3232/gatewatchApp-services.git/log"
-	"github.com/aditya3232/gatewatchApp-services.git/model/get_human_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/constant"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -28,7 +28,7 @@ func (h *GetHumanDetectionFromElasticHandler) FindAll(c *gin.Context) {
 		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIResponse(constant.InvalidRequest, http.StatusBadRequest, errorMessage)
-		log.Error(err)
+		log_function.Error(err)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -38,7 +38,7 @@ func (h *GetHumanDetectionFromElasticHandler) FindAll(c *gin.Context) {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}
 		response := helper.APIResponse(constant.CannotProcessRequest, http.StatusBadRequest, errorMessage)
-		log.Error(err, " from ip address: ", c.ClientIP())
+		log_function.Error(err, " from ip address: ", c.ClientIP())
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -46,7 +46,7 @@ func (h *GetHumanDetectionFromElasticHandler) FindAll(c *gin.Context) {
 	if len(elasticHumanDetections) == 0 {
 		errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
 		response := helper.APIResponse(constant.DataNotFound, http.StatusNotFound, errorMessage)
-		log.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
+		log_function.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
 		c.JSON(response.Meta.Code, response)
 		return
 	}

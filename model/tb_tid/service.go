@@ -1,6 +1,6 @@
 package tb_tid
 
-import "github.com/aditya3232/gatewatchApp-services.git/helper"
+import "github.com/aditya3232/atmVideoPack-services.git/helper"
 
 type Service interface {
 	Create(tbTidInput TbTidCreateInput) (TbTid, error)

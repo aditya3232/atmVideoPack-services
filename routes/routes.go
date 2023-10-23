@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"github.com/aditya3232/gatewatchApp-services.git/connection"
-	"github.com/aditya3232/gatewatchApp-services.git/handler"
-	"github.com/aditya3232/gatewatchApp-services.git/model/get_human_detection_from_elastic"
-	"github.com/aditya3232/gatewatchApp-services.git/model/tb_tid"
+	"github.com/aditya3232/atmVideoPack-services.git/connection"
+	"github.com/aditya3232/atmVideoPack-services.git/handler"
+	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
 )
 

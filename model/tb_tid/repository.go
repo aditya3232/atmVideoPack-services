@@ -1,7 +1,7 @@
 package tb_tid
 
 import (
-	"github.com/aditya3232/gatewatchApp-services.git/helper"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	"gorm.io/gorm"
 )
 

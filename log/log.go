@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aditya3232/gatewatchApp-services.git/connection"
+	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/google/uuid"
 	logrus "github.com/sirupsen/logrus"
@@ -205,7 +205,10 @@ func DeleteOldLog() {
 		// get 1 minute ago
 		// ago := now.Add(-1 * time.Minute)
 		// get 2 months ago
-		ago := now.AddDate(0, -2, 0)
+		// ago := now.AddDate(0, -2, 0)
+		// get 1 month ago
+		ago := now.AddDate(0, -1, 0)
+
 		// convert to string 01:17:31 16-08-2023
 		agoStr := ago.Format("15:04:05 02-01-2006")
 

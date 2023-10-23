@@ -79,3 +79,12 @@
 {"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:49:54 22-10-2023"}
 {"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:50:06 22-10-2023"}
 {"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:50:09 22-10-2023"}
+{"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:52:12 22-10-2023"}
+{"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:58:21 22-10-2023"}
+{"level":"info","message":"Entry tidak ditemukan from ip address: 127.0.0.1","timestamp":"19:58:27 22-10-2023"}
+{"level":"info","message":"cronjob started","timestamp":"09:23:58 23-10-2023"}
+{"level":"info","message":"delete old log success","timestamp":"09:24:03 23-10-2023"}
+{"level":"info","message":"cronjob started","timestamp":"09:25:00 23-10-2023"}
+{"level":"info","message":"delete old log success","timestamp":"09:25:05 23-10-2023"}
+{"level":"info","message":"cronjob started","timestamp":"09:25:47 23-10-2023"}
+{"level":"info","message":"delete old log success","timestamp":"09:25:52 23-10-2023"}

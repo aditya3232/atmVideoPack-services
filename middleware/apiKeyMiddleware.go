@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/aditya3232/gatewatchApp-services.git/helper"
-	"github.com/aditya3232/gatewatchApp-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	"github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/gin-gonic/gin"
 )
 

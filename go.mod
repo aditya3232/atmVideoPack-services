@@ -1,6 +1,6 @@
-module github.com/aditya3232/gatewatchApp-services.git
+module github.com/aditya3232/atmVideoPack-services.git
 
-go 1.18
+go 1.21.1
 
 require (
 	github.com/bytedance/sonic v1.10.0-rc3 // indirect
@@ -42,6 +42,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rabbitmq/amqp091-go v1.9.0 // indirect
 	github.com/redis/go-redis/v9 v9.1.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
@@ -52,6 +53,7 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
+	golang.org/dl v0.0.0-20231010164639-b8ab22880620 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -15,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aditya3232/gatewatchApp-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -389,7 +388,7 @@ func Base64ToImage(base64String string) (string, error) {
 	}
 
 	path := RandomStringWithLength(10) + "." + ext
-	err = ioutil.WriteFile(path, img, 0644)
+	err = os.WriteFile(path, img, 0644)
 	if err != nil {
 		return "", err
 	}
