@@ -107,7 +107,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 	query["sort"] = []map[string]interface{}{
 		{
 			"date_time.keyword": map[string]interface{}{
-				"order": "asc",
+				"order": "desc",
 			},
 		},
 	}
