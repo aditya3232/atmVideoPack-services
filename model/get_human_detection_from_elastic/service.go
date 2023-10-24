@@ -18,6 +18,8 @@ func (s *service) FindAll(findAllElasticHumanDetectionInput FindAllElasticHumanD
 		findAllElasticHumanDetectionInput.ID,
 		findAllElasticHumanDetectionInput.TidID,
 		findAllElasticHumanDetectionInput.DateTime,
+		findAllElasticHumanDetectionInput.StartDate,
+		findAllElasticHumanDetectionInput.EndDate,
 		findAllElasticHumanDetectionInput.Person,
 		findAllElasticHumanDetectionInput.FileNameCaptureHumanDetection,
 	)

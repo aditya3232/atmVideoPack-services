@@ -7,13 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
 
 type Repository interface {
-	FindAll(id string, tid_id int, date_time string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error)
+	FindAll(id string, tid_id int, date_time string, start_date string, end_date string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error)
 }
 
 type repository struct {
@@ -24,7 +25,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(id string, tid_id int, date_time string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error) {
+func (r *repository) FindAll(id string, tid_id int, date_time string, start_date string, end_date string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -39,7 +40,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 		return []ElasticHumanDetection{}, errors.New("elasticsearch not initialized")
 	}
 
-	if id != "" || tid_id != 0 || date_time != "" || person != "" || file_name_capture_human_detection != "" {
+	if id != "" || tid_id != 0 || date_time != "" || start_date != "" || end_date != "" || person != "" || file_name_capture_human_detection != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -70,6 +71,40 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, person str
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"match": map[string]interface{}{
 				"date_time.keyword": date_time,
+			},
+		})
+	}
+
+	// range date time
+	if start_date != "" && end_date != "" {
+		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
+			"range": map[string]interface{}{
+				"date_time.keyword": map[string]interface{}{
+					"gte": start_date,
+					"lte": end_date,
+				},
+			},
+		})
+	}
+
+	if start_date != "" && end_date == "" {
+		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
+			"range": map[string]interface{}{
+				"date_time.keyword": map[string]interface{}{
+					"gte": start_date,
+					"lte": time.Now().Format("2006-01-02T15:04:05"),
+				},
+			},
+		})
+	}
+
+	if start_date == "" && end_date != "" {
+		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
+			"range": map[string]interface{}{
+				"date_time.keyword": map[string]interface{}{
+					"gte": "2000-01-01T00:00:00",
+					"lte": end_date,
+				},
 			},
 		})
 	}

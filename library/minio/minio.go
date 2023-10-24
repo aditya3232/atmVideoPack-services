@@ -8,7 +8,7 @@ import (
 
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
-	"github.com/aditya3232/atmVideoPack-services.git/log"
+	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 )
@@ -36,7 +36,7 @@ func UploadFileFromPutObject(bucketName string, objectName string, imageBytes []
 func UploadFile(bucketName string, objectName string, filePath string) (minio.UploadInfo, error) {
 	n, err := MinioClient.FPutObject(context.Background(), bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
-		log.Error(err)
+		log_function.Error(err)
 		return minio.UploadInfo{}, err
 	}
 

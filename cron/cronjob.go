@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_human_detection_from_elastic"
@@ -17,6 +18,7 @@ func init() {
 
 	wg.Add(1)
 	go func() {
+		defer helper.RecoverPanic() // Menambahkan recover di dalam goroutine
 		defer wg.Done()
 		// cron := cron.New()
 		cron := cron.New(cron.WithChain(
@@ -42,6 +44,7 @@ func init() {
 
 	wg.Add(1)
 	go func() {
+		defer helper.RecoverPanic() // Menambahkan recover di dalam goroutine
 		defer wg.Done()
 		cron := cron.New(cron.WithChain(
 			cron.SkipIfStillRunning(cron.DefaultLogger),
