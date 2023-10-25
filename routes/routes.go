@@ -35,11 +35,13 @@ func Initialize(router *gin.Engine) {
 	api := router.Group("/api/atmvideopack/v1")
 
 	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	streamingCctvRoutes := api.Group("/stream")
 	elasticHumanDetectionIndexRoutes := api.Group("/humandetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticVandalDetectionIndexRoutes := api.Group("/vandaldetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticStatusMcDetectionRoutes := api.Group("/statusmcdetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
+	configureStreamingCctvRoutes(streamingCctvRoutes, tbTidHandler)
 	configureElasticHumanDetectionIndexRoutes(elasticHumanDetectionIndexRoutes, elasticHumanDetectionIndexHandler)
 	configureElasticVandalDetectionIndexRoutes(elasticVandalDetectionIndexRoutes, elasticVandalDetectionIndexHandler)
 	configureElasticStatusMcDetectionIndexRoutes(elasticStatusMcDetectionRoutes, elasticStatusMcDetectionHandler)
@@ -50,11 +52,10 @@ func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler)
 	group.POST("/create", handler.CreateTbTid)
 	group.POST("/getonebyid", handler.GetOneByID)
 	group.GET("/getall", handler.GetAllTbEntries)
+}
 
-	// GetStreamVideo
-	// group.GET("/getstreamvideo", handler.GetStreamVideo)
-	group.GET("/getstreamvideo/:id", handler.GetStreamVideo)
-
+func configureStreamingCctvRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler) {
+	group.GET("/cctv/:id", handler.GetStreamVideo)
 }
 
 func configureElasticHumanDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetHumanDetectionFromElasticHandler) {

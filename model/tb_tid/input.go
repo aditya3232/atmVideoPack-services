@@ -9,5 +9,5 @@ type TbTidCreateInput struct {
 
 // GetByTbTidID
 type GetOneByIDInput struct {
-	ID int `form:"id" binding:"required"`
+	ID int `uri:"id" binding:"required"`
 }
