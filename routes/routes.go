@@ -6,6 +6,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/handler"
 	"github.com/aditya3232/atmVideoPack-services.git/middleware"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/get_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
@@ -16,16 +17,19 @@ func Initialize(router *gin.Engine) {
 	tbTidRepository := tb_tid.NewRepository(connection.DatabaseMysql())
 	elasticHumanDetectionIndexRepository := get_human_detection_from_elastic.NewRepository(connection.ElasticSearch())
 	elasticVandalDetectionIndexRepository := get_vandal_detection_from_elastic.NewRepository(connection.ElasticSearch())
+	elasticStatusMcDetectionRepository := get_status_mc_detection_from_elastic.NewRepository(connection.ElasticSearch())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
 	elasticHumanDetectionIndexService := get_human_detection_from_elastic.NewService(elasticHumanDetectionIndexRepository)
 	elasticVandalDetectionIndexService := get_vandal_detection_from_elastic.NewService(elasticVandalDetectionIndexRepository)
+	elasticStatusMcDetectionService := get_status_mc_detection_from_elastic.NewService(elasticStatusMcDetectionRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
 	elasticHumanDetectionIndexHandler := handler.NewGetHumanDetectionFromElasticHandler(elasticHumanDetectionIndexService)
 	elasticVandalDetectionIndexHandler := handler.NewGetVandalDetectionFromElasticHandler(elasticVandalDetectionIndexService)
+	elasticStatusMcDetectionHandler := handler.NewGetStatusMcDetectionFromElasticHandler(elasticStatusMcDetectionService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -33,10 +37,12 @@ func Initialize(router *gin.Engine) {
 	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticHumanDetectionIndexRoutes := api.Group("/humandetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticVandalDetectionIndexRoutes := api.Group("/vandaldetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	elasticStatusMcDetectionRoutes := api.Group("/statusmcdetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureElasticHumanDetectionIndexRoutes(elasticHumanDetectionIndexRoutes, elasticHumanDetectionIndexHandler)
 	configureElasticVandalDetectionIndexRoutes(elasticVandalDetectionIndexRoutes, elasticVandalDetectionIndexHandler)
+	configureElasticStatusMcDetectionIndexRoutes(elasticStatusMcDetectionRoutes, elasticStatusMcDetectionHandler)
 
 }
 
@@ -56,5 +62,9 @@ func configureElasticHumanDetectionIndexRoutes(group *gin.RouterGroup, handler *
 }
 
 func configureElasticVandalDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetVandalDetectionFromElasticHandler) {
+	group.POST("/getall", handler.FindAll)
+}
+
+func configureElasticStatusMcDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetStatusMcDetectionFromElasticHandler) {
 	group.POST("/getall", handler.FindAll)
 }

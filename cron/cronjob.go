@@ -8,6 +8,7 @@ import (
 	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_human_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_vandal_detection_from_elastic"
 
 	"github.com/robfig/cron/v3"
@@ -86,6 +87,30 @@ func init() {
 			}
 
 			log_function.Info("delete vandal detection in elastic berhasil dilakukan")
+		})
+
+		cron.Start()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer helper.RecoverPanic() // Menambahkan recover di dalam goroutine
+		defer wg.Done()
+		cron := cron.New(cron.WithChain(
+			cron.SkipIfStillRunning(cron.DefaultLogger),
+		))
+
+		cron.AddFunc("0 0 * * *", func() {
+			// cron.AddFunc("@every 5s", func() {
+			delOldStatusMcDetectionFromElasticRepository := del_old_log_status_mc_detection_from_elastic.NewRepository(connection.ElasticSearch())
+			delOldStatusMcDetectionFromElasticService := del_old_log_status_mc_detection_from_elastic.NewService(delOldStatusMcDetectionFromElasticRepository)
+
+			err := delOldStatusMcDetectionFromElasticService.DelOneMonthOldStatusMcDetectionLogs()
+			if err != nil {
+				log_function.Error("Error delete status mc detection:", err)
+			}
+
+			log_function.Info("delete status mc detection in elastic berhasil dilakukan")
 		})
 
 		cron.Start()
