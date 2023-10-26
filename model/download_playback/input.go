@@ -5,5 +5,5 @@ type ServiceDownloadPlaybackInput struct {
 	FolderDate    string `form:"folder_date"`
 	StarthourDate string `form:"starthour_date"`
 	Endhour       string `form:"endhour"`
-	IpAddress     string `json:"ip_address"` // untuk balikan ip address from getOnByTid
+	IpAddress     string `json:"ip_address"` // untuk menampung input dari service
 }

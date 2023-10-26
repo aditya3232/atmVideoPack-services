@@ -9,6 +9,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/streaming_cctv"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,7 @@ func Initialize(router *gin.Engine) {
 	elasticVandalDetectionIndexRepository := get_vandal_detection_from_elastic.NewRepository(connection.ElasticSearch())
 	elasticStatusMcDetectionRepository := get_status_mc_detection_from_elastic.NewRepository(connection.ElasticSearch())
 	downloadPlaybackRepository := download_playback.NewRepository(connection.DatabaseMysql())
+	streamingCctvRepository := streaming_cctv.NewRepository(connection.DatabaseMysql())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
@@ -27,6 +29,7 @@ func Initialize(router *gin.Engine) {
 	elasticVandalDetectionIndexService := get_vandal_detection_from_elastic.NewService(elasticVandalDetectionIndexRepository)
 	elasticStatusMcDetectionService := get_status_mc_detection_from_elastic.NewService(elasticStatusMcDetectionRepository)
 	downloadPlaybackService := download_playback.NewService(downloadPlaybackRepository, tbTidRepository)
+	streamingCctvService := streaming_cctv.NewService(streamingCctvRepository, tbTidRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
@@ -34,6 +37,7 @@ func Initialize(router *gin.Engine) {
 	elasticVandalDetectionIndexHandler := handler.NewGetVandalDetectionFromElasticHandler(elasticVandalDetectionIndexService)
 	elasticStatusMcDetectionHandler := handler.NewGetStatusMcDetectionFromElasticHandler(elasticStatusMcDetectionService)
 	downloadPlaybackHandler := handler.NewDownloadPlaybackHandler(downloadPlaybackService)
+	streamingCctvHandler := handler.NewStreamingCctvHandler(streamingCctvService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -46,7 +50,7 @@ func Initialize(router *gin.Engine) {
 	downloadPlaybackRoutes := api.Group("/videoplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
-	configureStreamingCctvRoutes(streamingCctvRoutes, tbTidHandler)
+	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
 	configureElasticHumanDetectionIndexRoutes(elasticHumanDetectionIndexRoutes, elasticHumanDetectionIndexHandler)
 	configureElasticVandalDetectionIndexRoutes(elasticVandalDetectionIndexRoutes, elasticVandalDetectionIndexHandler)
 	configureElasticStatusMcDetectionIndexRoutes(elasticStatusMcDetectionRoutes, elasticStatusMcDetectionHandler)
@@ -60,8 +64,8 @@ func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler)
 	group.GET("/getall", handler.GetAllTbEntries)
 }
 
-func configureStreamingCctvRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler) {
-	group.GET("/cctv/:id", handler.GetStreamVideo)
+func configureStreamingCctvRoutes(group *gin.RouterGroup, handler *handler.StreamingCctvHandler) {
+	group.GET("/cctv/:id", handler.StreamingCctv)
 }
 
 func configureElasticHumanDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetHumanDetectionFromElasticHandler) {
