@@ -142,7 +142,8 @@ func (h *TbTidHandler) GetStreamVideo(c *gin.Context) {
 	// Ambil video dari URL pihak ketiga
 	response, err := http.Get(streamingURL)
 	if err != nil {
-		log_function.Error(err)
+		// matikan error ini jika prod, biar gk ketauan eror ip nya
+		// log_function.Error(err)
 		// Tampilkan pesan kesalahan HTML sebagai respons
 		errorMessage := generateHTMLErrorMessage()
 		// Mengirimkan respons dengan HTML

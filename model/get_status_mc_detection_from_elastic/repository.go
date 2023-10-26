@@ -47,7 +47,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 					"must": []map[string]interface{}{},
 				},
 			},
-			"size": 100,
+			"size": 1,
 		}
 	}
 
@@ -115,7 +115,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 			"query": map[string]interface{}{
 				"match_all": map[string]interface{}{},
 			},
-			"size": 100,
+			"size": 1,
 		}
 	}
 

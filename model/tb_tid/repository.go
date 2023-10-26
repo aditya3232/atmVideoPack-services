@@ -9,6 +9,7 @@ type Repository interface {
 	Create(tbTid TbTid) (TbTid, error)
 	GetOneByID(id int) (TbTid, error)
 	GetAll(map[string]string, helper.Pagination, helper.Sort) ([]TbTid, helper.Pagination, error)
+	CheckUniqueTidInput(tid string) bool
 }
 
 type repository struct {
@@ -66,5 +67,13 @@ func (r *repository) GetAll(filter map[string]string, pagination helper.Paginati
 	pagination.TotalFiltered = len(tbTids)
 
 	return tbTids, pagination, nil
+
+}
+
+func (r *repository) CheckUniqueTidInput(tid string) bool {
+	var tbTid TbTid
+
+	err := r.db.Where("tid = ?", tid).First(&tbTid).Error
+	return err != nil
 
 }

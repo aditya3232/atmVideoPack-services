@@ -1,6 +1,11 @@
 package tb_tid
 
-import "github.com/aditya3232/atmVideoPack-services.git/helper"
+import (
+	"errors"
+
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
+)
 
 type Service interface {
 	Create(tbTidInput TbTidCreateInput) (TbTid, error)
@@ -17,7 +22,16 @@ func NewService(tbTidRepository Repository) *service {
 }
 
 func (s *service) Create(tbTidInput TbTidCreateInput) (TbTid, error) {
-	tbTid := TbTid{
+	var tbTid TbTid
+
+	// check unique tid
+	unique := s.tbTidRepository.CheckUniqueTidInput(tbTidInput.Tid)
+	if !unique {
+		log_function.Error("add device error, tid is not unique")
+		return tbTid, errors.New("tid is not unique")
+	}
+
+	tbTid = TbTid{
 		Tid:        tbTidInput.Tid,
 		IpAddress:  tbTidInput.IpAddress,
 		SnMiniPc:   tbTidInput.SnMiniPc,
