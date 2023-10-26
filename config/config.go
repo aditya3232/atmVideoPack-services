@@ -44,6 +44,15 @@ type envConfigs struct {
 	RABBIT_PORT string `mapstructure:"RABBIT_PORT"`
 	RABBIT_USER string `mapstructure:"RABBIT_USER"`
 	RABBIT_PASS string `mapstructure:"RABBIT_PASS"`
+
+	// service streaming cctv
+	SERVICE_STREAMING_CCTV_PORT string `mapstructure:"SERVICE_STREAMING_CCTV_PORT"`
+
+	// service download playback
+	SERVICE_DOWNLOAD_PLAYBACK_HOST         string `mapstructure:"SERVICE_DOWNLOAD_PLAYBACK_HOST"`
+	SERVICE_DOWNLOAD_PLAYBACK_PORT         string `mapstructure:"SERVICE_DOWNLOAD_PLAYBACK_PORT"`
+	SERVICE_DOWNLOAD_PLAYBACK_API_KEY      string `mapstructure:"SERVICE_DOWNLOAD_PLAYBACK_API_KEY"`
+	SERVICE_DOWNLOAD_PLAYBACK_CONTENT_TYPE string `mapstructure:"SERVICE_DOWNLOAD_PLAYBACK_CONTENT_TYPE"`
 }
 
 func load() (config *envConfigs) {

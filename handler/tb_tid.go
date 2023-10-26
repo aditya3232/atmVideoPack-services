@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/aditya3232/atmVideoPack-services.git/config"
 	"github.com/aditya3232/atmVideoPack-services.git/constant"
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
@@ -137,7 +138,7 @@ func (h *TbTidHandler) GetStreamVideo(c *gin.Context) {
 
 	// get ip address
 	ipAddress := getOneByID.IpAddress
-	streamingURL := fmt.Sprintf("http://%s:5000", ipAddress)
+	streamingURL := fmt.Sprintf("http://%s:%s", ipAddress, config.CONFIG.SERVICE_STREAMING_CCTV_PORT)
 
 	// Ambil video dari URL pihak ketiga
 	response, err := http.Get(streamingURL)

@@ -5,6 +5,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/aditya3232/atmVideoPack-services.git/handler"
 	"github.com/aditya3232/atmVideoPack-services.git/middleware"
+	"github.com/aditya3232/atmVideoPack-services.git/model/download_playback"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
@@ -18,18 +19,21 @@ func Initialize(router *gin.Engine) {
 	elasticHumanDetectionIndexRepository := get_human_detection_from_elastic.NewRepository(connection.ElasticSearch())
 	elasticVandalDetectionIndexRepository := get_vandal_detection_from_elastic.NewRepository(connection.ElasticSearch())
 	elasticStatusMcDetectionRepository := get_status_mc_detection_from_elastic.NewRepository(connection.ElasticSearch())
+	downloadPlaybackRepository := download_playback.NewRepository(connection.DatabaseMysql())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
 	elasticHumanDetectionIndexService := get_human_detection_from_elastic.NewService(elasticHumanDetectionIndexRepository)
 	elasticVandalDetectionIndexService := get_vandal_detection_from_elastic.NewService(elasticVandalDetectionIndexRepository)
 	elasticStatusMcDetectionService := get_status_mc_detection_from_elastic.NewService(elasticStatusMcDetectionRepository)
+	downloadPlaybackService := download_playback.NewService(downloadPlaybackRepository, tbTidRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
 	elasticHumanDetectionIndexHandler := handler.NewGetHumanDetectionFromElasticHandler(elasticHumanDetectionIndexService)
 	elasticVandalDetectionIndexHandler := handler.NewGetVandalDetectionFromElasticHandler(elasticVandalDetectionIndexService)
 	elasticStatusMcDetectionHandler := handler.NewGetStatusMcDetectionFromElasticHandler(elasticStatusMcDetectionService)
+	downloadPlaybackHandler := handler.NewDownloadPlaybackHandler(downloadPlaybackService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -39,12 +43,14 @@ func Initialize(router *gin.Engine) {
 	elasticHumanDetectionIndexRoutes := api.Group("/humandetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticVandalDetectionIndexRoutes := api.Group("/vandaldetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticStatusMcDetectionRoutes := api.Group("/statusmcdetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	downloadPlaybackRoutes := api.Group("/videoplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, tbTidHandler)
 	configureElasticHumanDetectionIndexRoutes(elasticHumanDetectionIndexRoutes, elasticHumanDetectionIndexHandler)
 	configureElasticVandalDetectionIndexRoutes(elasticVandalDetectionIndexRoutes, elasticVandalDetectionIndexHandler)
 	configureElasticStatusMcDetectionIndexRoutes(elasticStatusMcDetectionRoutes, elasticStatusMcDetectionHandler)
+	configureDownloadPlaybackRoutes(downloadPlaybackRoutes, downloadPlaybackHandler)
 
 }
 
@@ -68,4 +74,8 @@ func configureElasticVandalDetectionIndexRoutes(group *gin.RouterGroup, handler 
 
 func configureElasticStatusMcDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetStatusMcDetectionFromElasticHandler) {
 	group.POST("/getall", handler.FindAll)
+}
+
+func configureDownloadPlaybackRoutes(group *gin.RouterGroup, handler *handler.DownloadPlaybackHandler) {
+	group.POST("/download", handler.DownloadPlayback)
 }

@@ -10,7 +10,9 @@ import (
 type Service interface {
 	Create(tbTidInput TbTidCreateInput) (TbTid, error)
 	GetOneByID(input GetOneByIDInput) (TbTid, error)
+	GetOneByTid(tid string) (TbTid, error)
 	GetAll(filter map[string]string, pagination helper.Pagination, sort helper.Sort) ([]TbTid, helper.Pagination, error)
+	CheckUniqueTidInput(tid string) bool
 }
 
 type service struct {
@@ -58,6 +60,14 @@ func (s *service) GetOneByID(input GetOneByIDInput) (TbTid, error) {
 	return tbTid, nil
 }
 
+func (s *service) GetOneByTid(tid string) (TbTid, error) {
+	tbTid, err := s.tbTidRepository.GetOneByTid(tid)
+	if err != nil {
+		return tbTid, err
+	}
+	return tbTid, nil
+}
+
 func (s *service) GetAll(filter map[string]string, pagination helper.Pagination, sort helper.Sort) ([]TbTid, helper.Pagination, error) {
 	tbEntries, pagination, err := s.tbTidRepository.GetAll(filter, pagination, sort)
 	if err != nil {
@@ -65,4 +75,9 @@ func (s *service) GetAll(filter map[string]string, pagination helper.Pagination,
 	}
 
 	return tbEntries, pagination, nil
+}
+
+func (s *service) CheckUniqueTidInput(tid string) bool {
+	unique := s.tbTidRepository.CheckUniqueTidInput(tid)
+	return unique
 }

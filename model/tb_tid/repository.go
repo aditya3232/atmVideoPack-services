@@ -8,6 +8,7 @@ import (
 type Repository interface {
 	Create(tbTid TbTid) (TbTid, error)
 	GetOneByID(id int) (TbTid, error)
+	GetOneByTid(tid string) (TbTid, error)
 	GetAll(map[string]string, helper.Pagination, helper.Sort) ([]TbTid, helper.Pagination, error)
 	CheckUniqueTidInput(tid string) bool
 }
@@ -33,6 +34,17 @@ func (r *repository) GetOneByID(id int) (TbTid, error) {
 	var tbTid TbTid
 
 	err := r.db.Where("id = ?", id).First(&tbTid).Error
+	if err != nil {
+		return tbTid, err
+	}
+
+	return tbTid, nil
+}
+
+func (r *repository) GetOneByTid(tid string) (TbTid, error) {
+	var tbTid TbTid
+
+	err := r.db.Where("tid = ?", tid).First(&tbTid).Error
 	if err != nil {
 		return tbTid, err
 	}
