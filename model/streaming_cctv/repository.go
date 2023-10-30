@@ -29,7 +29,6 @@ func (r *repository) StreamingCctv(input StreamingCctvInput) (*http.Response, er
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
 	return response, nil
 }
