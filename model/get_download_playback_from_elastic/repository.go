@@ -7,6 +7,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
@@ -161,6 +162,9 @@ func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]Ela
 		edh.FileSizeBytes = source["file_size_bytes"].(string)
 		edh.Filename = source["filename"].(string)
 		edh.Url = source["url"].(string)
+
+		// encrypt url for save link
+		edh.Url = helper.Encrypt(edh.Url)
 
 		edhs = append(edhs, edh)
 	}

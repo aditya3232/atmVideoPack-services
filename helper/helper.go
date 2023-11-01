@@ -527,3 +527,9 @@ func ConvertFileToBase64(file *multipart.FileHeader) (string, error) {
 
 	return base64String, nil
 }
+
+// encrypt url
+func Encrypt(url string) string {
+	encryptedUrl := base64.StdEncoding.EncodeToString([]byte(url))
+	return encryptedUrl
+}
