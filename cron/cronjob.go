@@ -6,6 +6,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
+	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_download_playback_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/del_old_log_status_mc_detection_from_elastic"
@@ -111,6 +112,30 @@ func init() {
 			}
 
 			log_function.Info("delete status mc detection in elastic berhasil dilakukan")
+		})
+
+		cron.Start()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer helper.RecoverPanic() // Menambahkan recover di dalam goroutine
+		defer wg.Done()
+		cron := cron.New(cron.WithChain(
+			cron.SkipIfStillRunning(cron.DefaultLogger),
+		))
+
+		cron.AddFunc("0 0 * * *", func() {
+			// cron.AddFunc("@every 5s", func() {
+			delOldDownloadPlaybackFromElasticRepository := del_old_log_download_playback_from_elastic.NewRepository(connection.ElasticSearch())
+			delOldDownloadPlaybackFromElasticService := del_old_log_download_playback_from_elastic.NewService(delOldDownloadPlaybackFromElasticRepository)
+
+			err := delOldDownloadPlaybackFromElasticService.DelOneMonthOldDownloadPlaybackLogs()
+			if err != nil {
+				log_function.Error("Error delete download playback:", err)
+			}
+
+			log_function.Info("delete download playback in elastic berhasil dilakukan")
 		})
 
 		cron.Start()
