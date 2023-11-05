@@ -15,6 +15,7 @@ import (
 
 type Repository interface {
 	FindAll(id string, tid_id int, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error)
+	TotalDeviceDown() ([]ElasticStatusMcDetection, error)
 }
 
 type repository struct {
@@ -148,8 +149,12 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 
 	defer res.Body.Close()
 
+	// if res.IsError() {
+	// 	return []ElasticStatusMcDetection{}, err
+	// }
+
 	if res.IsError() {
-		return []ElasticStatusMcDetection{}, err
+		return nil, fmt.Errorf("elasticsearch error: %s", res.String())
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&rdb); err != nil {
@@ -188,4 +193,127 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 	}
 
 	return edhs, nil
+}
+
+func (r *repository) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
+	var (
+		err   error
+		query map[string]interface{}
+		res   *esapi.Response
+		rdb   map[string]interface{}
+		hits  []interface{}
+		edh   ElasticStatusMcDetection
+		edhs  []ElasticStatusMcDetection
+	)
+
+	if r.elasticsearch == nil {
+		return []ElasticStatusMcDetection{}, errors.New("elasticsearch not initialized")
+	}
+
+	/*
+		- ambil data yang melebihi 2 jam date_time nya
+		- lanjut group by tid_id
+		- lanjut order date_time secara desc
+
+		- dengan begitu, maka akan ketauan tid mana yang sudah tidak nyala selama lebih dari 2 jam, dan dapat terlihat kapan terakhir dia nyala
+	*/
+	query = map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"filter": []interface{}{
+					map[string]interface{}{
+						"range": map[string]interface{}{
+							"date_time.keyword": map[string]interface{}{
+								"lt": "now-2h/h",
+							},
+						},
+					},
+				},
+			},
+		},
+		"aggs": map[string]interface{}{
+			"tid_data": map[string]interface{}{
+				"terms": map[string]interface{}{
+					"field": "tid_id.keyword",
+					"size":  1000000,
+				},
+				"aggs": map[string]interface{}{
+					"latest_data": map[string]interface{}{
+						"top_hits": map[string]interface{}{
+							"size": 1,
+							"sort": []interface{}{
+								map[string]interface{}{
+									"date_time.keyword": map[string]interface{}{
+										"order": "desc",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// proses menampilkan datanya
+	queryBytes, err := json.Marshal(query)
+	if err != nil {
+		return []ElasticStatusMcDetection{}, err
+	}
+
+	res, err = r.elasticsearch.Search(
+		r.elasticsearch.Search.WithContext(context.Background()),
+		r.elasticsearch.Search.WithIndex("status_mc_detection_index"),
+		r.elasticsearch.Search.WithBody(bytes.NewReader(queryBytes)),
+		r.elasticsearch.Search.WithTrackTotalHits(true),
+		r.elasticsearch.Search.WithPretty(),
+	)
+
+	if err != nil {
+		return []ElasticStatusMcDetection{}, err
+	}
+
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return nil, fmt.Errorf("elasticsearch error: %s", res.String())
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&rdb); err != nil {
+		return []ElasticStatusMcDetection{}, err
+	}
+
+	hits, _ = rdb["aggregations"].(map[string]interface{})["tid_data"].(map[string]interface{})["buckets"].([]interface{})
+	for _, hit := range hits {
+		edh.ID = hit.(map[string]interface{})["latest_data"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string)
+
+		source, ok := hit.(map[string]interface{})["latest_data"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})
+
+		if !ok {
+			continue // Skip this iteration if _source is not found in the hit
+		}
+
+		tidID, ok := source["tid_id"]
+		if ok {
+			tidIDInt, err := strconv.Atoi(fmt.Sprintf("%v", tidID))
+			if err != nil {
+				// Handle the error if the conversion fails
+				return []ElasticStatusMcDetection{}, err
+			}
+			edh.TidID = tidIDInt
+		} else {
+			edh.TidID = 0 // or set it to another default value if needed
+		}
+
+		edh.DateTime = source["date_time"].(string)
+		edh.StatusSignal = source["status_signal"].(string)
+		edh.StatusStorage = source["status_storage"].(string)
+		edh.StatusRam = source["status_ram"].(string)
+		edh.StatusCpu = source["status_cpu"].(string)
+
+		edhs = append(edhs, edh)
+	}
+
+	return edhs, nil
+
 }

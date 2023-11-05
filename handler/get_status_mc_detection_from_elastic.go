@@ -54,3 +54,26 @@ func (h *GetStatusMcDetectionFromElasticHandler) FindAll(c *gin.Context) {
 	response := helper.APIResponse(constant.DataFound, http.StatusOK, get_status_mc_detection_from_elastic.ElasticStatusMcDetectionGetAllFormat(elasticStatusMcDetections))
 	c.JSON(response.Meta.Code, response)
 }
+
+func (h *GetStatusMcDetectionFromElasticHandler) TotalDeviceDown(c *gin.Context) {
+	elasticStatusMcDetections, err := h.getStatusMcDetectionFromElasticService.TotalDeviceDown()
+	if err != nil {
+		errors := helper.FormatError(err)
+		errorMessage := gin.H{"errors": errors}
+		response := helper.APIResponse(constant.CannotProcessRequest, http.StatusBadRequest, errorMessage)
+		log_function.Error(err, " from ip address: ", c.ClientIP())
+		c.JSON(response.Meta.Code, response)
+		return
+	}
+
+	// if len(elasticStatusMcDetections) == 0 {
+	// 	errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
+	// 	response := helper.APIResponse(constant.DataNotFound, http.StatusNotFound, errorMessage)
+	// 	log_function.Info("Entry tidak ditemukan", " from ip address: ", c.ClientIP())
+	// 	c.JSON(response.Meta.Code, response)
+	// 	return
+	// }
+
+	response := helper.APIResponse(constant.DataFound, http.StatusOK, get_status_mc_detection_from_elastic.ElasticStatusMcDetectionGetAllFormat(elasticStatusMcDetections))
+	c.JSON(response.Meta.Code, response)
+}
