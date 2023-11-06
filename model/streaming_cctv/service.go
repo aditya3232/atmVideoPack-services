@@ -1,13 +1,13 @@
 package streaming_cctv
 
 import (
-	"net/http"
+	"bytes"
 
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
 )
 
 type Service interface {
-	StreamingCctv(input StreamingCctvInput) (*http.Response, error)
+	StreamingCctv(input StreamingCctvInput) (*bytes.Buffer, error)
 }
 
 type service struct {
@@ -19,7 +19,7 @@ func NewService(streamingCctvRepository Repository, tbTidRepository tb_tid.Repos
 	return &service{streamingCctvRepository, tbTidRepository}
 }
 
-func (s *service) StreamingCctv(input StreamingCctvInput) (*http.Response, error) {
+func (s *service) StreamingCctv(input StreamingCctvInput) (*bytes.Buffer, error) {
 	// get ip_address
 	tbTid, err := s.tbTidRepository.GetOneByID(input.ID)
 	if err != nil {

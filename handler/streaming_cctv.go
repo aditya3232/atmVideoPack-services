@@ -32,7 +32,7 @@ func (h *StreamingCctvHandler) StreamingCctv(c *gin.Context) {
 		return
 	}
 
-	response, err := h.streamingCctvService.StreamingCctv(input)
+	buffer, err := h.streamingCctvService.StreamingCctv(input)
 	if err != nil {
 		errorMessage := generateHTMLErrorMessage()
 		c.Data(http.StatusInternalServerError, "text/html", []byte(errorMessage))
@@ -40,9 +40,8 @@ func (h *StreamingCctvHandler) StreamingCctv(c *gin.Context) {
 	}
 
 	// Salin isi response body ke response context Gin
-	contentType := response.Header.Get("Content-Type")
-	c.Header("Content-Type", contentType)
-	_, err = io.Copy(c.Writer, response.Body)
+	c.Header("Content-Type", "ogg")
+	_, err = io.Copy(c.Writer, buffer)
 	if err != nil {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}
