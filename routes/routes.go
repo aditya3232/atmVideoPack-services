@@ -84,7 +84,7 @@ func configureElasticVandalDetectionIndexRoutes(group *gin.RouterGroup, handler 
 
 func configureElasticStatusMcDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetStatusMcDetectionFromElasticHandler) {
 	group.POST("/getall", handler.FindAll)
-	group.POST("/totaldevicedown", handler.TotalDeviceDown)
+	group.POST("/getdeviceupanddown", handler.FindDeviceUpAndDown)
 }
 
 func configureElasticDownloadPlaybackIndexRoutes(group *gin.RouterGroup, handler *handler.GetDownloadPlaybackFromElasticHandler) {

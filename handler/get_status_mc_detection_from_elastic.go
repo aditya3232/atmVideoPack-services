@@ -55,8 +55,8 @@ func (h *GetStatusMcDetectionFromElasticHandler) FindAll(c *gin.Context) {
 	c.JSON(response.Meta.Code, response)
 }
 
-func (h *GetStatusMcDetectionFromElasticHandler) TotalDeviceDown(c *gin.Context) {
-	elasticStatusMcDetections, err := h.getStatusMcDetectionFromElasticService.TotalDeviceDown()
+func (h *GetStatusMcDetectionFromElasticHandler) FindDeviceUpAndDown(c *gin.Context) {
+	elasticStatusMcDetections, err := h.getStatusMcDetectionFromElasticService.FindDeviceUpDown()
 	if err != nil {
 		errors := helper.FormatError(err)
 		errorMessage := gin.H{"errors": errors}
@@ -74,6 +74,6 @@ func (h *GetStatusMcDetectionFromElasticHandler) TotalDeviceDown(c *gin.Context)
 	// 	return
 	// }
 
-	response := helper.APIResponse(constant.DataFound, http.StatusOK, get_status_mc_detection_from_elastic.ElasticStatusMcDetectionGetAllFormat(elasticStatusMcDetections))
+	response := helper.APIResponse(constant.DataFound, http.StatusOK, get_status_mc_detection_from_elastic.ElasticStatusMcDetectionOnOrOffGetAllFormat(elasticStatusMcDetections))
 	c.JSON(response.Meta.Code, response)
 }

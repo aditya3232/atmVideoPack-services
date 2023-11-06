@@ -36,7 +36,7 @@ func (r *repository) DelOneMonthOldStatusMcDetectionLogs() error {
 			"query": map[string]interface{}{
 				"range": map[string]interface{}{
 					"date_time": map[string]interface{}{
-						"lte": oneMonthAgoStr,
+						"gt": oneMonthAgoStr,
 					},
 				},
 			},

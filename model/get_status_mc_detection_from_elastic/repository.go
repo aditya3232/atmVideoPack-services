@@ -15,7 +15,7 @@ import (
 
 type Repository interface {
 	FindAll(id string, tid_id int, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error)
-	TotalDeviceDown() ([]ElasticStatusMcDetection, error)
+	FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error)
 }
 
 type repository struct {
@@ -195,54 +195,68 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 	return edhs, nil
 }
 
-func (r *repository) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
+func (r *repository) FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error) {
 	var (
 		err   error
 		query map[string]interface{}
 		res   *esapi.Response
 		rdb   map[string]interface{}
 		hits  []interface{}
-		edh   ElasticStatusMcDetection
-		edhs  []ElasticStatusMcDetection
+		edh   ElasticStatusMcDetectionOnOrOff
+		edhs  []ElasticStatusMcDetectionOnOrOff
 	)
 
 	if r.elasticsearch == nil {
-		return []ElasticStatusMcDetection{}, errors.New("elasticsearch not initialized")
+		return []ElasticStatusMcDetectionOnOrOff{}, errors.New("elasticsearch not initialized")
 	}
 
 	/*
-		- ambil data yang melebihi 2 jam date_time nya
-		- lanjut group by tid_id
-		- lanjut order date_time secara desc
-
-		- dengan begitu, maka akan ketauan tid mana yang sudah tidak nyala selama lebih dari 2 jam, dan dapat terlihat kapan terakhir dia nyala
+		- ambil data unik setiap tid_id, lalu ambil satu data terbaru berdasarkan date_time
+		- lanjut, kita beri kondisi di golang, jika melebihi 2 jam maka offline, dan jika kurang dari atau sama dengan 2 jam maka online
 	*/
-	query = map[string]interface{}{
-		"query": map[string]interface{}{
-			"bool": map[string]interface{}{
-				"filter": []interface{}{
-					map[string]interface{}{
-						"range": map[string]interface{}{
-							"date_time.keyword": map[string]interface{}{
-								"lt": "now-2h/h",
-							},
-						},
-					},
-				},
+
+	/*
+		{
+		"size": 0,
+		"aggs": {
+			"unique_tid_ids": {
+			"terms": {
+				"field": "tid_id",
+				"size": 10
 			},
-		},
+			"aggs": {
+				"latest_date_time": {
+				"top_hits": {
+					"size": 1,
+					"sort": [
+					{
+						"date_time": {
+						"order": "desc"
+						}
+					}
+					]
+				}
+				}
+			}
+			}
+		}
+		}
+	*/
+
+	query = map[string]interface{}{
+		"size": 0,
 		"aggs": map[string]interface{}{
-			"tid_data": map[string]interface{}{
+			"unique_tid_ids": map[string]interface{}{
 				"terms": map[string]interface{}{
 					"field": "tid_id.keyword",
 					"size":  1000000,
 				},
 				"aggs": map[string]interface{}{
-					"latest_data": map[string]interface{}{
+					"latest_date_time": map[string]interface{}{
 						"top_hits": map[string]interface{}{
 							"size": 1,
-							"sort": []interface{}{
-								map[string]interface{}{
+							"sort": []map[string]interface{}{
+								{
 									"date_time.keyword": map[string]interface{}{
 										"order": "desc",
 									},
@@ -258,7 +272,7 @@ func (r *repository) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
 	// proses menampilkan datanya
 	queryBytes, err := json.Marshal(query)
 	if err != nil {
-		return []ElasticStatusMcDetection{}, err
+		return []ElasticStatusMcDetectionOnOrOff{}, err
 	}
 
 	res, err = r.elasticsearch.Search(
@@ -270,7 +284,7 @@ func (r *repository) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
 	)
 
 	if err != nil {
-		return []ElasticStatusMcDetection{}, err
+		return []ElasticStatusMcDetectionOnOrOff{}, err
 	}
 
 	defer res.Body.Close()
@@ -280,38 +294,125 @@ func (r *repository) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&rdb); err != nil {
-		return []ElasticStatusMcDetection{}, err
+		return []ElasticStatusMcDetectionOnOrOff{}, err
 	}
 
-	hits, _ = rdb["aggregations"].(map[string]interface{})["tid_data"].(map[string]interface{})["buckets"].([]interface{})
-	for _, hit := range hits {
-		edh.ID = hit.(map[string]interface{})["latest_data"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string)
-
-		source, ok := hit.(map[string]interface{})["latest_data"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})
-
-		if !ok {
-			continue // Skip this iteration if _source is not found in the hit
-		}
-
-		tidID, ok := source["tid_id"]
-		if ok {
-			tidIDInt, err := strconv.Atoi(fmt.Sprintf("%v", tidID))
-			if err != nil {
-				// Handle the error if the conversion fails
-				return []ElasticStatusMcDetection{}, err
+	/*
+			{
+			"took": 10,
+			"timed_out": false,
+			"_shards": {
+				"total": 1,
+				"successful": 1,
+				"skipped": 0,
+				"failed": 0
+			},
+			"hits": {
+				"total": {
+					"value": 57,
+					"relation": "eq"
+				},
+				"max_score": null,
+				"hits": []
+			},
+			"aggregations": {
+				"unique_tid_ids": {
+					"doc_count_error_upper_bound": 0,
+					"sum_other_doc_count": 0,
+					"buckets": [
+						{
+							"key": "1",
+							"doc_count": 54,
+							"latest_date_time": {
+								"hits": {
+									"total": {
+										"value": 54,
+										"relation": "eq"
+									},
+									"max_score": null,
+									"hits": [
+										{
+											"_index": "status_mc_detection_index",
+											"_type": "_doc",
+											"_id": "Wk28k4sB_mgHndj7i4Rl",
+											"_score": null,
+											"_source": {
+												"id": "2023-11-03-12-51-29-122",
+												"tid_id": "1",
+												"date_time": "2023-11-03 12:51:28",
+												"status_signal": "Download Speed: 3.46 Mbps, Upload Speed: 6.45 Mbps",
+												"status_storage": "Used 37.96 GB , Not Used 404.05 GB",
+												"status_ram": "2.85 GB, 17.90 %",
+												"status_cpu": "59.60%"
+											},
+											"sort": [
+												"2023-11-03 12:51:28"
+											]
+										}
+									]
+								}
+							}
+						},
+						{
+							"key": "2",
+							"doc_count": 3,
+							"latest_date_time": {
+								"hits": {
+									"total": {
+										"value": 3,
+										"relation": "eq"
+									},
+									"max_score": null,
+									"hits": [
+										{
+											"_index": "status_mc_detection_index",
+											"_type": "_doc",
+											"_id": "5E2VkIsB_mgHndj7loN8",
+											"_score": null,
+											"_source": {
+												"id": "2023-11-02-22-10-04-334",
+												"tid_id": "2",
+												"date_time": "2023-10-09 05:12:39",
+												"status_signal": "good",
+												"status_storage": "good",
+												"status_ram": "good",
+												"status_cpu": "good"
+											},
+											"sort": [
+												"2023-10-09 05:12:39"
+											]
+										}
+									]
+								}
+							}
+						}
+					]
+				}
 			}
-			edh.TidID = tidIDInt
-		} else {
-			edh.TidID = 0 // or set it to another default value if needed
 		}
 
-		edh.DateTime = source["date_time"].(string)
-		edh.StatusSignal = source["status_signal"].(string)
-		edh.StatusStorage = source["status_storage"].(string)
-		edh.StatusRam = source["status_ram"].(string)
-		edh.StatusCpu = source["status_cpu"].(string)
+	*/
+
+	hits, _ = rdb["aggregations"].(map[string]interface{})["unique_tid_ids"].(map[string]interface{})["buckets"].([]interface{})
+	for _, hit := range hits {
+		edh.ID = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string)
+		edh.TidID, _ = strconv.Atoi(fmt.Sprintf("%v", hit.(map[string]interface{})["key"]))
+		edh.DateTime = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["date_time"].(string)
+		edh.StatusSignal = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_signal"].(string)
+		edh.StatusStorage = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_storage"].(string)
+		edh.StatusRam = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_ram"].(string)
+		edh.StatusCpu = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_cpu"].(string)
+
+		// if date_time > 2 hours then edh.StatusMc = "offline", if date_time <= 2 hours then edh.StatusMc = "online"
+		date_time, _ := time.Parse("2006-01-02 15:04:05", edh.DateTime)
+		if time.Since(date_time).Hours() > 2 {
+			edh.StatusMc = "offline"
+		} else {
+			edh.StatusMc = "online"
+		}
 
 		edhs = append(edhs, edh)
+
 	}
 
 	return edhs, nil

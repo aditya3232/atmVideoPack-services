@@ -2,7 +2,7 @@ package get_status_mc_detection_from_elastic
 
 type Service interface {
 	FindAll(findAllElasticStatusMcDetectionInput FindAllElasticStatusMcDetectionInput) ([]ElasticStatusMcDetection, error)
-	TotalDeviceDown() ([]ElasticStatusMcDetection, error)
+	FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error)
 }
 
 type service struct {
@@ -29,12 +29,12 @@ func (s *service) FindAll(findAllElasticStatusMcDetectionInput FindAllElasticSta
 	return elasticStatusMcDetections, nil
 }
 
-func (s *service) TotalDeviceDown() ([]ElasticStatusMcDetection, error) {
+func (s *service) FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error) {
 
-	elasticStatusMcDetections, err := s.elasticStatusMcDetectionRepository.TotalDeviceDown()
+	elasticStatusMcDetectionOnOrOffs, err := s.elasticStatusMcDetectionRepository.FindDeviceUpDown()
 	if err != nil {
 		return nil, err
 	}
 
-	return elasticStatusMcDetections, nil
+	return elasticStatusMcDetectionOnOrOffs, nil
 }
