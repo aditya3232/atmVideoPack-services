@@ -2,7 +2,7 @@ package get_status_mc_detection_from_elastic
 
 type ElasticStatusMcDetectionGetFormatter struct {
 	ID            string `json:"id"`
-	TidID         int    `json:"tid_id"`
+	Tid           string `json:"tid"`
 	DateTime      string `json:"date_time"`
 	StatusSignal  string `json:"status_signal"`
 	StatusStorage string `json:"status_storage"`
@@ -14,7 +14,7 @@ func ElasticStatusMcDetectionGetFormat(elasticStatusMcDetection ElasticStatusMcD
 	var formatter ElasticStatusMcDetectionGetFormatter
 
 	formatter.ID = elasticStatusMcDetection.ID
-	formatter.TidID = elasticStatusMcDetection.TidID
+	formatter.Tid = elasticStatusMcDetection.Tid
 	formatter.DateTime = elasticStatusMcDetection.DateTime
 	formatter.StatusSignal = elasticStatusMcDetection.StatusSignal
 	formatter.StatusStorage = elasticStatusMcDetection.StatusStorage
@@ -37,7 +37,7 @@ func ElasticStatusMcDetectionGetAllFormat(elasticStatusMcDetections []ElasticSta
 
 type ElasticStatusMcDetectionOnOrOffFormatter struct {
 	ID            string `json:"id"`
-	TidID         int    `json:"tid_id"`
+	Tid           string `json:"tid"`
 	DateTime      string `json:"date_time"`
 	StatusSignal  string `json:"status_signal"`
 	StatusStorage string `json:"status_storage"`
@@ -50,7 +50,7 @@ func ElasticStatusMcDetectionOnOrOffGetFormat(elasticStatusMcDetectionOnOrOff El
 	var formatter ElasticStatusMcDetectionOnOrOffFormatter
 
 	formatter.ID = elasticStatusMcDetectionOnOrOff.ID
-	formatter.TidID = elasticStatusMcDetectionOnOrOff.TidID
+	formatter.Tid = elasticStatusMcDetectionOnOrOff.Tid
 	formatter.DateTime = elasticStatusMcDetectionOnOrOff.DateTime
 	formatter.StatusSignal = elasticStatusMcDetectionOnOrOff.StatusSignal
 	formatter.StatusStorage = elasticStatusMcDetectionOnOrOff.StatusStorage

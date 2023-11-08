@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"strconv"
 	"time"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
@@ -14,7 +12,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(id string, tid_id int, date_time string, start_date string, end_date string, person string, file_name_capture_vandal_detection string) ([]ElasticVandalDetection, error)
+	FindAll(id string, tid string, date_time string, start_date string, end_date string, person string, file_name_capture_vandal_detection string) ([]ElasticVandalDetection, error)
 }
 
 type repository struct {
@@ -25,7 +23,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(id string, tid_id int, date_time string, start_date string, end_date string, person string, file_name_capture_vandal_detection string) ([]ElasticVandalDetection, error) {
+func (r *repository) FindAll(id string, tid string, date_time string, start_date string, end_date string, person string, file_name_capture_vandal_detection string) ([]ElasticVandalDetection, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -40,7 +38,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 		return []ElasticVandalDetection{}, errors.New("elasticsearch not initialized")
 	}
 
-	if id != "" || tid_id != 0 || date_time != "" || start_date != "" || end_date != "" || person != "" || file_name_capture_vandal_detection != "" {
+	if id != "" || tid != "" || date_time != "" || start_date != "" || end_date != "" || person != "" || file_name_capture_vandal_detection != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -59,10 +57,10 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 		})
 	}
 
-	if tid_id != 0 {
+	if tid != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"tid_id": tid_id,
+				"tid": tid,
 			},
 		})
 	}
@@ -185,18 +183,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 			continue // Skip this iteration if _source is not found in the hit
 		}
 
-		tidID, ok := source["tid_id"]
-		if ok {
-			tidIDInt, err := strconv.Atoi(fmt.Sprintf("%v", tidID))
-			if err != nil {
-				// Handle the error if the conversion fails
-				return []ElasticVandalDetection{}, err
-			}
-			edh.TidID = tidIDInt
-		} else {
-			edh.TidID = 0 // or set it to another default value if needed
-		}
-
+		edh.Tid = source["tid"].(string)
 		edh.DateTime = source["date_time"].(string)
 		edh.Person = source["person"].(string)
 		edh.FileNameCaptureVandalDetection = source["file_name_capture_vandal_detection"].(string)

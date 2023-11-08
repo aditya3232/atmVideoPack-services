@@ -2,7 +2,7 @@ package get_vandal_detection_from_elastic
 
 type ElasticVandalDetectionGetFormatter struct {
 	ID                             string `json:"id"`
-	TidID                          int    `json:"tid_id"`
+	Tid                            string `json:"tid"`
 	DateTime                       string `json:"date_time"`
 	Person                         string `json:"person"`
 	FileNameCaptureVandalDetection string `json:"file_name_capture_vandal_detection"`
@@ -12,7 +12,7 @@ func ElasticVandalDetectionGetFormat(elasticVandalDetection ElasticVandalDetecti
 	var formatter ElasticVandalDetectionGetFormatter
 
 	formatter.ID = elasticVandalDetection.ID
-	formatter.TidID = elasticVandalDetection.TidID
+	formatter.Tid = elasticVandalDetection.Tid
 	formatter.DateTime = elasticVandalDetection.DateTime
 	formatter.Person = elasticVandalDetection.Person
 	formatter.FileNameCaptureVandalDetection = elasticVandalDetection.FileNameCaptureVandalDetection

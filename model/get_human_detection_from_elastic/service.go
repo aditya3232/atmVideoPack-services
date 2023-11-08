@@ -16,7 +16,7 @@ func (s *service) FindAll(findAllElasticHumanDetectionInput FindAllElasticHumanD
 
 	elasticHumanDetections, err := s.elasticHumanDetectionRepository.FindAll(
 		findAllElasticHumanDetectionInput.ID,
-		findAllElasticHumanDetectionInput.TidID,
+		findAllElasticHumanDetectionInput.Tid,
 		findAllElasticHumanDetectionInput.DateTime,
 		findAllElasticHumanDetectionInput.StartDate,
 		findAllElasticHumanDetectionInput.EndDate,

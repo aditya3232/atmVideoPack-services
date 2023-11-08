@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	esv7 "github.com/elastic/go-elasticsearch/v7"
@@ -14,7 +13,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(id string, tid_id int, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error)
+	FindAll(id string, tid string, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error)
 	FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error)
 }
 
@@ -26,7 +25,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(id string, tid_id int, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error) {
+func (r *repository) FindAll(id string, tid string, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -41,7 +40,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 		return []ElasticStatusMcDetection{}, errors.New("elasticsearch not initialized")
 	}
 
-	if id != "" || tid_id != 0 || date_time != "" || start_date != "" || end_date != "" {
+	if id != "" || tid != "" || date_time != "" || start_date != "" || end_date != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -60,10 +59,10 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 		})
 	}
 
-	if tid_id != 0 {
+	if tid != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"tid_id": tid_id,
+				"tid": tid,
 			},
 		})
 	}
@@ -171,18 +170,7 @@ func (r *repository) FindAll(id string, tid_id int, date_time string, start_date
 			continue // Skip this iteration if _source is not found in the hit
 		}
 
-		tidID, ok := source["tid_id"]
-		if ok {
-			tidIDInt, err := strconv.Atoi(fmt.Sprintf("%v", tidID))
-			if err != nil {
-				// Handle the error if the conversion fails
-				return []ElasticStatusMcDetection{}, err
-			}
-			edh.TidID = tidIDInt
-		} else {
-			edh.TidID = 0 // or set it to another default value if needed
-		}
-
+		edh.Tid = source["tid"].(string)
 		edh.DateTime = source["date_time"].(string)
 		edh.StatusSignal = source["status_signal"].(string)
 		edh.StatusStorage = source["status_storage"].(string)
@@ -246,9 +234,9 @@ func (r *repository) FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, erro
 	query = map[string]interface{}{
 		"size": 0,
 		"aggs": map[string]interface{}{
-			"unique_tid_ids": map[string]interface{}{
+			"unique_tids": map[string]interface{}{
 				"terms": map[string]interface{}{
-					"field": "tid_id.keyword",
+					"field": "tid.keyword",
 					"size":  1000000,
 				},
 				"aggs": map[string]interface{}{
@@ -393,10 +381,10 @@ func (r *repository) FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, erro
 
 	*/
 
-	hits, _ = rdb["aggregations"].(map[string]interface{})["unique_tid_ids"].(map[string]interface{})["buckets"].([]interface{})
+	hits, _ = rdb["aggregations"].(map[string]interface{})["unique_tids"].(map[string]interface{})["buckets"].([]interface{})
 	for _, hit := range hits {
 		edh.ID = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_id"].(string)
-		edh.TidID, _ = strconv.Atoi(fmt.Sprintf("%v", hit.(map[string]interface{})["key"]))
+		edh.Tid = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["tid"].(string)
 		edh.DateTime = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["date_time"].(string)
 		edh.StatusSignal = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_signal"].(string)
 		edh.StatusStorage = hit.(map[string]interface{})["latest_date_time"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]interface{})[0].(map[string]interface{})["_source"].(map[string]interface{})["status_storage"].(string)

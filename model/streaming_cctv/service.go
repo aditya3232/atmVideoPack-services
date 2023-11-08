@@ -21,7 +21,7 @@ func NewService(streamingCctvRepository Repository, tbTidRepository tb_tid.Repos
 
 func (s *service) StreamingCctv(input StreamingCctvInput) (*bytes.Buffer, error) {
 	// get ip_address
-	tbTid, err := s.tbTidRepository.GetOneByID(input.ID)
+	tbTid, err := s.tbTidRepository.GetOneByTid(input.Tid)
 	if err != nil {
 		return nil, err
 	}

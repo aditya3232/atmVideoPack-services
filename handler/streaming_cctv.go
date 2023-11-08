@@ -34,7 +34,7 @@ func (h *StreamingCctvHandler) StreamingCctv(c *gin.Context) {
 
 	buffer, err := h.streamingCctvService.StreamingCctv(input)
 	if err != nil {
-		errorMessage := generateHTMLErrorMessage()
+		errorMessage := generateHTMLErrorMessageCctv()
 		c.Data(http.StatusInternalServerError, "text/html", []byte(errorMessage))
 		return
 	}
@@ -53,7 +53,7 @@ func (h *StreamingCctvHandler) StreamingCctv(c *gin.Context) {
 
 }
 
-func generateHTMLErrorMessage() string {
+func generateHTMLErrorMessageCctv() string {
 	errorMessage := `
     <!DOCTYPE html>
 	<html>

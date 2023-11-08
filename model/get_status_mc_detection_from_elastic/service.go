@@ -17,7 +17,7 @@ func (s *service) FindAll(findAllElasticStatusMcDetectionInput FindAllElasticSta
 
 	elasticStatusMcDetections, err := s.elasticStatusMcDetectionRepository.FindAll(
 		findAllElasticStatusMcDetectionInput.ID,
-		findAllElasticStatusMcDetectionInput.TidID,
+		findAllElasticStatusMcDetectionInput.Tid,
 		findAllElasticStatusMcDetectionInput.DateTime,
 		findAllElasticStatusMcDetectionInput.StartDate,
 		findAllElasticStatusMcDetectionInput.EndDate,

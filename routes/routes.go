@@ -52,7 +52,7 @@ func Initialize(router *gin.Engine) {
 	elasticVandalDetectionIndexRoutes := api.Group("/vandaldetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticStatusMcDetectionRoutes := api.Group("/statusmcdetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticDownloadPlaybackRoutes := api.Group("/downloadplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
-	downloadPlaybackRoutes := api.Group("/videoplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+	downloadPlaybackRoutes := api.Group("/downloadvideoplayback")
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
@@ -71,7 +71,7 @@ func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler)
 }
 
 func configureStreamingCctvRoutes(group *gin.RouterGroup, handler *handler.StreamingCctvHandler) {
-	group.GET("/cctv/:id", handler.StreamingCctv)
+	group.GET("/cctv/:tid", handler.StreamingCctv)
 }
 
 func configureElasticHumanDetectionIndexRoutes(group *gin.RouterGroup, handler *handler.GetHumanDetectionFromElasticHandler) {
@@ -92,5 +92,5 @@ func configureElasticDownloadPlaybackIndexRoutes(group *gin.RouterGroup, handler
 }
 
 func configureDownloadPlaybackRoutes(group *gin.RouterGroup, handler *handler.DownloadPlaybackHandler) {
-	group.POST("/download", handler.DownloadPlayback)
+	group.GET("/:videos/:tid/:yyyymmdd/:filename", handler.DownloadPlayback)
 }

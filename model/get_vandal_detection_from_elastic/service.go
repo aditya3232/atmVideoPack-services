@@ -16,7 +16,7 @@ func (s *service) FindAll(findAllElasticVandalDetectionInput FindAllElasticVanda
 
 	elasticVandalDetections, err := s.elasticVandalDetectionRepository.FindAll(
 		findAllElasticVandalDetectionInput.ID,
-		findAllElasticVandalDetectionInput.TidID,
+		findAllElasticVandalDetectionInput.Tid,
 		findAllElasticVandalDetectionInput.DateTime,
 		findAllElasticVandalDetectionInput.StartDate,
 		findAllElasticVandalDetectionInput.EndDate,
