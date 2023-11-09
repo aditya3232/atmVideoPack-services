@@ -12,6 +12,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/streaming_cctv"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,7 +47,15 @@ func Initialize(router *gin.Engine) {
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
 
+	// add middleware cors
+	api.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"}, // yang berarti semua domain diizinkan untuk mengakses sumber daya pada server.
+		AllowMethods: []string{"POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders: []string{"Origin", "Authorization", "Content-Type"},
+	}))
+
 	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
+
 	streamingCctvRoutes := api.Group("/stream")
 	elasticHumanDetectionIndexRoutes := api.Group("/humandetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticVandalDetectionIndexRoutes := api.Group("/vandaldetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
