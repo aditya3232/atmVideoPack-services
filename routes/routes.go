@@ -50,8 +50,8 @@ func Initialize(router *gin.Engine) {
 	// add middleware cors
 	api.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"}, // yang berarti semua domain diizinkan untuk mengakses sumber daya pada server.
-		AllowMethods: []string{"POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders: []string{"Origin", "Authorization", "Content-Type"},
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
 	}))
 
 	tbTidRoutes := api.Group("/device", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
