@@ -40,7 +40,7 @@ func (h *StreamingCctvHandler) StreamingCctv(c *gin.Context) {
 	}
 
 	// Salin isi response body ke response context Gin
-	c.Header("Content-Type", "ogg")
+	c.Header("Content-Type", "text/html")
 	_, err = io.Copy(c.Writer, buffer)
 	if err != nil {
 		errors := helper.FormatError(err)
