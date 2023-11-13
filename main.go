@@ -5,7 +5,7 @@ import (
 
 	"github.com/aditya3232/atmVideoPack-services.git/config"
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
-	_ "github.com/aditya3232/atmVideoPack-services.git/cron"
+
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
 	"github.com/aditya3232/atmVideoPack-services.git/routes"
 	"github.com/gin-gonic/gin"
