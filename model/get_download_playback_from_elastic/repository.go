@@ -5,10 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
-	"github.com/aditya3232/atmVideoPack-services.git/config"
 	esv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
@@ -162,7 +160,7 @@ func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]Ela
 		edh.DurationMinutes = source["duration_minutes"].(string)
 		edh.FileSizeBytes = source["file_size_bytes"].(string)
 		edh.Filename = source["filename"].(string)
-		// edh.Url = source["url"].(string)
+		edh.Url = source["url"].(string)
 		// encrypt url for save link
 		// edh.Url = helper.Encrypt(edh.Url)
 
@@ -173,11 +171,11 @@ func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]Ela
 			- nanti fe akan mendapatkan link be
 		*/
 
-		Yyyymmdd := source["date_modified"].(string)[:10]
+		// Yyyymmdd := source["date_modified"].(string)[:10]
 
-		BeDownloadPlaybackURL := fmt.Sprintf("http://%s:%s/api/atmvideopack/v1/downloadvideoplayback/videos/%s/%s/%s", config.CONFIG.APP_HOST, config.CONFIG.APP_PORT, source["tid"].(string), Yyyymmdd, source["filename"].(string))
+		// BeDownloadPlaybackURL := fmt.Sprintf("http://%s:%s/api/atmvideopack/v1/downloadvideoplayback/videos/%s/%s/%s", config.CONFIG.APP_HOST, config.CONFIG.APP_PORT, source["tid"].(string), Yyyymmdd, source["filename"].(string))
 
-		edh.Url = BeDownloadPlaybackURL
+		// edh.Url = BeDownloadPlaybackURL
 
 		edhs = append(edhs, edh)
 	}
