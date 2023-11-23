@@ -14,15 +14,7 @@ func NewService(elasticVandalDetectionRepository Repository) *service {
 
 func (s *service) FindAll(findAllElasticVandalDetectionInput FindAllElasticVandalDetectionInput) ([]ElasticVandalDetection, error) {
 
-	elasticVandalDetections, err := s.elasticVandalDetectionRepository.FindAll(
-		findAllElasticVandalDetectionInput.ID,
-		findAllElasticVandalDetectionInput.Tid,
-		findAllElasticVandalDetectionInput.DateTime,
-		findAllElasticVandalDetectionInput.StartDate,
-		findAllElasticVandalDetectionInput.EndDate,
-		findAllElasticVandalDetectionInput.Person,
-		findAllElasticVandalDetectionInput.FileNameCaptureVandalDetection,
-	)
+	elasticVandalDetections, err := s.elasticVandalDetectionRepository.FindAll(findAllElasticVandalDetectionInput)
 	if err != nil {
 		return nil, err
 	}

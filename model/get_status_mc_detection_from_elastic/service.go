@@ -15,13 +15,7 @@ func NewService(elasticStatusMcDetectionRepository Repository) *service {
 
 func (s *service) FindAll(findAllElasticStatusMcDetectionInput FindAllElasticStatusMcDetectionInput) ([]ElasticStatusMcDetection, error) {
 
-	elasticStatusMcDetections, err := s.elasticStatusMcDetectionRepository.FindAll(
-		findAllElasticStatusMcDetectionInput.ID,
-		findAllElasticStatusMcDetectionInput.Tid,
-		findAllElasticStatusMcDetectionInput.DateTime,
-		findAllElasticStatusMcDetectionInput.StartDate,
-		findAllElasticStatusMcDetectionInput.EndDate,
-	)
+	elasticStatusMcDetections, err := s.elasticStatusMcDetectionRepository.FindAll(findAllElasticStatusMcDetectionInput)
 	if err != nil {
 		return nil, err
 	}

@@ -14,12 +14,7 @@ func NewService(elasticDownloadPlaybackRepository Repository) *service {
 
 func (s *service) FindAll(findAllElasticDownloadPlaybackInput FindAllElasticDownloadPlaybackInput) ([]ElasticDownloadPlayback, error) {
 
-	elasticDownloadPlaybacks, err := s.elasticDownloadPlaybackRepository.FindAll(
-		findAllElasticDownloadPlaybackInput.Tid,
-		findAllElasticDownloadPlaybackInput.DateTime,
-		findAllElasticDownloadPlaybackInput.StartDate,
-		findAllElasticDownloadPlaybackInput.EndDate,
-	)
+	elasticDownloadPlaybacks, err := s.elasticDownloadPlaybackRepository.FindAll(findAllElasticDownloadPlaybackInput)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(tid, date_time, start_date, end_date string) ([]ElasticDownloadPlayback, error)
+	FindAll(findAllElasticDownloadPlaybackInput FindAllElasticDownloadPlaybackInput) ([]ElasticDownloadPlayback, error)
 }
 
 type repository struct {
@@ -23,7 +23,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]ElasticDownloadPlayback, error) {
+func (r *repository) FindAll(findAllElasticDownloadPlaybackInput FindAllElasticDownloadPlaybackInput) ([]ElasticDownloadPlayback, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -38,7 +38,7 @@ func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]Ela
 		return []ElasticDownloadPlayback{}, errors.New("elasticsearch not initialized")
 	}
 
-	if tid != "" || date_time != "" || start_date != "" || end_date != "" {
+	if findAllElasticDownloadPlaybackInput.Tid != "" || findAllElasticDownloadPlaybackInput.DateTime != "" || findAllElasticDownloadPlaybackInput.StartDate != "" || findAllElasticDownloadPlaybackInput.EndDate != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -49,51 +49,51 @@ func (r *repository) FindAll(tid, date_time, start_date, end_date string) ([]Ela
 		}
 	}
 
-	if tid != "" {
+	if findAllElasticDownloadPlaybackInput.Tid != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"tid": tid,
+				"tid": findAllElasticDownloadPlaybackInput.Tid,
 			},
 		})
 	}
 
-	if date_time != "" {
+	if findAllElasticDownloadPlaybackInput.DateTime != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"match": map[string]interface{}{
-				"date_modified.keyword": date_time,
+				"date_modified.keyword": findAllElasticDownloadPlaybackInput.DateTime,
 			},
 		})
 	}
 
 	// range date time
-	if start_date != "" && end_date != "" {
+	if findAllElasticDownloadPlaybackInput.StartDate != "" && findAllElasticDownloadPlaybackInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_modified.keyword": map[string]interface{}{
-					"gte": start_date,
-					"lte": end_date,
+					"gte": findAllElasticDownloadPlaybackInput.StartDate,
+					"lte": findAllElasticDownloadPlaybackInput.EndDate,
 				},
 			},
 		})
 	}
 
-	if start_date != "" && end_date == "" {
+	if findAllElasticDownloadPlaybackInput.StartDate != "" && findAllElasticDownloadPlaybackInput.EndDate == "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_modified.keyword": map[string]interface{}{
-					"gte": start_date,
+					"gte": findAllElasticDownloadPlaybackInput.StartDate,
 					"lte": time.Now().Format("2006-01-02T15:04:05"),
 				},
 			},
 		})
 	}
 
-	if start_date == "" && end_date != "" {
+	if findAllElasticDownloadPlaybackInput.StartDate == "" && findAllElasticDownloadPlaybackInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_modified.keyword": map[string]interface{}{
 					"gte": "2000-01-01T00:00:00",
-					"lte": end_date,
+					"lte": findAllElasticDownloadPlaybackInput.EndDate,
 				},
 			},
 		})

@@ -14,15 +14,7 @@ func NewService(elasticHumanDetectionRepository Repository) *service {
 
 func (s *service) FindAll(findAllElasticHumanDetectionInput FindAllElasticHumanDetectionInput) ([]ElasticHumanDetection, error) {
 
-	elasticHumanDetections, err := s.elasticHumanDetectionRepository.FindAll(
-		findAllElasticHumanDetectionInput.ID,
-		findAllElasticHumanDetectionInput.Tid,
-		findAllElasticHumanDetectionInput.DateTime,
-		findAllElasticHumanDetectionInput.StartDate,
-		findAllElasticHumanDetectionInput.EndDate,
-		findAllElasticHumanDetectionInput.Person,
-		findAllElasticHumanDetectionInput.FileNameCaptureHumanDetection,
-	)
+	elasticHumanDetections, err := s.elasticHumanDetectionRepository.FindAll(findAllElasticHumanDetectionInput)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(id string, tid string, date_time string, start_date string, end_date string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error)
+	FindAll(findAllElasticHumanDetectionInput FindAllElasticHumanDetectionInput) ([]ElasticHumanDetection, error)
 }
 
 type repository struct {
@@ -23,7 +23,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(id string, tid string, date_time string, start_date string, end_date string, person string, file_name_capture_human_detection string) ([]ElasticHumanDetection, error) {
+func (r *repository) FindAll(findAllElasticHumanDetectionInput FindAllElasticHumanDetectionInput) ([]ElasticHumanDetection, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -38,7 +38,7 @@ func (r *repository) FindAll(id string, tid string, date_time string, start_date
 		return []ElasticHumanDetection{}, errors.New("elasticsearch not initialized")
 	}
 
-	if id != "" || tid != "" || date_time != "" || start_date != "" || end_date != "" || person != "" || file_name_capture_human_detection != "" {
+	if findAllElasticHumanDetectionInput.ID != "" || findAllElasticHumanDetectionInput.Tid != "" || findAllElasticHumanDetectionInput.DateTime != "" || findAllElasticHumanDetectionInput.StartDate != "" || findAllElasticHumanDetectionInput.EndDate != "" || findAllElasticHumanDetectionInput.Person != "" || findAllElasticHumanDetectionInput.FileNameCaptureHumanDetection != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -49,68 +49,68 @@ func (r *repository) FindAll(id string, tid string, date_time string, start_date
 		}
 	}
 
-	if id != "" {
+	if findAllElasticHumanDetectionInput.ID != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"_id": id,
+				"_id": findAllElasticHumanDetectionInput.ID,
 			},
 		})
 	}
 
-	if tid != "" {
+	if findAllElasticHumanDetectionInput.Tid != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"tid": tid,
+				"tid": findAllElasticHumanDetectionInput.Tid,
 			},
 		})
 	}
 
-	if date_time != "" {
+	if findAllElasticHumanDetectionInput.DateTime != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"match": map[string]interface{}{
-				"date_time.keyword": date_time,
+				"date_time.keyword": findAllElasticHumanDetectionInput.DateTime,
 			},
 		})
 	}
 
 	// range date time
-	if start_date != "" && end_date != "" {
+	if findAllElasticHumanDetectionInput.StartDate != "" && findAllElasticHumanDetectionInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
-					"gte": start_date,
-					"lte": end_date,
+					"gte": findAllElasticHumanDetectionInput.StartDate,
+					"lte": findAllElasticHumanDetectionInput.EndDate,
 				},
 			},
 		})
 	}
 
-	if start_date != "" && end_date == "" {
+	if findAllElasticHumanDetectionInput.StartDate != "" && findAllElasticHumanDetectionInput.EndDate == "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
-					"gte": start_date,
+					"gte": findAllElasticHumanDetectionInput.StartDate,
 					"lte": time.Now().Format("2006-01-02T15:04:05"),
 				},
 			},
 		})
 	}
 
-	if start_date == "" && end_date != "" {
+	if findAllElasticHumanDetectionInput.StartDate == "" && findAllElasticHumanDetectionInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
 					"gte": "2000-01-01T00:00:00",
-					"lte": end_date,
+					"lte": findAllElasticHumanDetectionInput.EndDate,
 				},
 			},
 		})
 	}
 
-	if person != "" {
+	if findAllElasticHumanDetectionInput.Person != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"person": person,
+				"person": findAllElasticHumanDetectionInput.Person,
 			},
 		})
 	}
@@ -118,10 +118,10 @@ func (r *repository) FindAll(id string, tid string, date_time string, start_date
 	/*
 		Perhatikan penggunaan .keyword di bidang "file_name_capture_human_detection". Ini mengacu pada bidang yang tidak dianalisis dan memungkinkan pencocokan tepat dengan nilai yang diberikan.
 	*/
-	if file_name_capture_human_detection != "" {
+	if findAllElasticHumanDetectionInput.FileNameCaptureHumanDetection != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"file_name_capture_human_detection.keyword": file_name_capture_human_detection,
+				"file_name_capture_human_detection.keyword": findAllElasticHumanDetectionInput.FileNameCaptureHumanDetection,
 			},
 		})
 	}

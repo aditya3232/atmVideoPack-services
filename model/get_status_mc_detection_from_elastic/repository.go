@@ -13,7 +13,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(id string, tid string, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error)
+	FindAll(findAllElasticStatusMcDetectionInput FindAllElasticStatusMcDetectionInput) ([]ElasticStatusMcDetection, error)
 	FindDeviceUpDown() ([]ElasticStatusMcDetectionOnOrOff, error)
 }
 
@@ -25,7 +25,7 @@ func NewRepository(elasticsearch *esv7.Client) *repository {
 	return &repository{elasticsearch}
 }
 
-func (r *repository) FindAll(id string, tid string, date_time string, start_date string, end_date string) ([]ElasticStatusMcDetection, error) {
+func (r *repository) FindAll(findAllElasticStatusMcDetectionInput FindAllElasticStatusMcDetectionInput) ([]ElasticStatusMcDetection, error) {
 	var (
 		err   error
 		query map[string]interface{}
@@ -40,7 +40,7 @@ func (r *repository) FindAll(id string, tid string, date_time string, start_date
 		return []ElasticStatusMcDetection{}, errors.New("elasticsearch not initialized")
 	}
 
-	if id != "" || tid != "" || date_time != "" || start_date != "" || end_date != "" {
+	if findAllElasticStatusMcDetectionInput.ID != "" || findAllElasticStatusMcDetectionInput.Tid != "" || findAllElasticStatusMcDetectionInput.DateTime != "" || findAllElasticStatusMcDetectionInput.StartDate != "" || findAllElasticStatusMcDetectionInput.EndDate != "" {
 		query = map[string]interface{}{
 			"query": map[string]interface{}{
 				"bool": map[string]interface{}{
@@ -51,59 +51,59 @@ func (r *repository) FindAll(id string, tid string, date_time string, start_date
 		}
 	}
 
-	if id != "" {
+	if findAllElasticStatusMcDetectionInput.ID != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"_id": id,
+				"_id": findAllElasticStatusMcDetectionInput.ID,
 			},
 		})
 	}
 
-	if tid != "" {
+	if findAllElasticStatusMcDetectionInput.Tid != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"term": map[string]interface{}{
-				"tid": tid,
+				"tid": findAllElasticStatusMcDetectionInput.Tid,
 			},
 		})
 	}
 
-	if date_time != "" {
+	if findAllElasticStatusMcDetectionInput.DateTime != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"match": map[string]interface{}{
-				"date_time.keyword": date_time,
+				"date_time.keyword": findAllElasticStatusMcDetectionInput.DateTime,
 			},
 		})
 	}
 
 	// range date time
-	if start_date != "" && end_date != "" {
+	if findAllElasticStatusMcDetectionInput.StartDate != "" && findAllElasticStatusMcDetectionInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
-					"gte": start_date,
-					"lte": end_date,
+					"gte": findAllElasticStatusMcDetectionInput.StartDate,
+					"lte": findAllElasticStatusMcDetectionInput.EndDate,
 				},
 			},
 		})
 	}
 
-	if start_date != "" && end_date == "" {
+	if findAllElasticStatusMcDetectionInput.StartDate != "" && findAllElasticStatusMcDetectionInput.EndDate == "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
-					"gte": start_date,
+					"gte": findAllElasticStatusMcDetectionInput.StartDate,
 					"lte": time.Now().Format("2006-01-02T15:04:05"),
 				},
 			},
 		})
 	}
 
-	if start_date == "" && end_date != "" {
+	if findAllElasticStatusMcDetectionInput.StartDate == "" && findAllElasticStatusMcDetectionInput.EndDate != "" {
 		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"] = append(query["query"].(map[string]interface{})["bool"].(map[string]interface{})["must"].([]map[string]interface{}), map[string]interface{}{
 			"range": map[string]interface{}{
 				"date_time.keyword": map[string]interface{}{
 					"gte": "2000-01-01T00:00:00",
-					"lte": end_date,
+					"lte": findAllElasticStatusMcDetectionInput.EndDate,
 				},
 			},
 		})
