@@ -83,6 +83,15 @@ func sendLogToElasticsearch(level logrus.Level, args ...interface{}) {
 	defer res.Body.Close()
 }
 
+/*
+- dalam menggunakan log gunakan yang ada f diakhirnya, jadi kita bisa memberikan pesan string untuk informasi tambahan terkair errornya
+- Contoh Penggunaan: Errorf("Failed to process request: %v", err)
+*/
+
+/*
+- log info => Digunakan untuk mencatat informasi umum atau langkah-langkah yang dijalankan dengan benar.
+- Contoh Penggunaan: Info("A user has logged in")
+*/
 func Info(args ...interface{}) {
 	New.Info(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -93,6 +102,10 @@ func Infof(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log error => Digunakan untuk mencatat pesan kesalahan atau kondisi tidak diharapkan yang terjadi.
+- Contoh Penggunaan: Error("Failed to process request")
+*/
 func Error(args ...interface{}) {
 	New.Error(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -103,6 +116,10 @@ func Errorf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log fatal => Sama seperti Error, tetapi juga menghentikan eksekusi program setelah mencatat pesan kesalahan.
+- Contoh Penggunaan: Fatal("Critical error, shutting down")
+*/
 func Fatal(args ...interface{}) {
 	New.Fatal(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -113,6 +130,10 @@ func Fatalf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log panic => Mencatat pesan kesalahan dan menyebabkan panic, menghentikan eksekusi program.
+- Contoh Penggunaan: Panic("Unable to find configuration file")
+*/
 func Panic(args ...interface{}) {
 	New.Panic(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -123,6 +144,10 @@ func Panicf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log warning => Digunakan untuk mencatat peringatan atau kondisi yang seharusnya mendapatkan perhatian.
+- Contoh Penggunaan: Warn("Resource usage is high")
+*/
 func Warn(args ...interface{}) {
 	New.Warn(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -133,6 +158,10 @@ func Warnf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log debug => Digunakan selama pengembangan untuk mencatat informasi rinci atau langkah-langkah di dalam kode.
+- Contoh penggunaan: Debug("Entering function X")
+*/
 func Debug(args ...interface{}) {
 	New.Debug(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -143,6 +172,10 @@ func Debugf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log trace => Digunakan untuk pencatatan rinci yang sering digunakan dalam debug dan analisis kinerja.
+- Contoh Penggunaan: Trace("Function Y execution time:", executionTime)
+*/
 func Trace(args ...interface{}) {
 	New.Trace(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -153,6 +186,10 @@ func Tracef(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log print => Digunakan untuk mencetak informasi tanpa tingkat log tertentu.
+- Contoh penggunaan: Print("Printing status...")
+*/
 func Print(args ...interface{}) {
 	New.Print(args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
@@ -163,6 +200,11 @@ func Printf(format string, args ...interface{}) {
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
 }
 
+/*
+- Log(level logrus.Level, args ...interface{}) / Logf(level logrus.Level, format string, args ...interface{}):
+- Mencatat pesan log dengan tingkat log tertentu yang ditentukan.
+- Contoh Penggunaan: Log(logrus.WarnLevel, "This is a warning message")
+*/
 func Log(level logrus.Level, args ...interface{}) {
 	New.Log(level, args...)
 	sendLogToElasticsearch(logrus.InfoLevel, args...)
