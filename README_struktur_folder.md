@@ -43,7 +43,7 @@
 |   # service berfungsi mengatur bisnis logic utama
 |   # repository berfungsi untuk mengatur crud data dari database
 |   # entity berfungsi untuk mengatur struktur data dari database
-|   # input berfungsi untuk mengatur input dari user
+|   # input (dto, data transfer object) berfungsi untuk mengatur input dari user
 |   # formatter berfungsi untuk mengatur output dari aplikasi, atau memformat response
 |   |
 │   ├── your_app_1/

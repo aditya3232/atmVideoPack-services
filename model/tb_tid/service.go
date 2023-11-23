@@ -19,10 +19,41 @@ type service struct {
 	tbTidRepository Repository
 }
 
+/*
+tbTidRepository := tb_tid.NewRepository(connection.DatabaseMysql())
+tbTidService := tb_tid.NewService(tbTidRepository)
+tbTidHandler := handler.NewTbTidHandler(tbTidService)
+
+configureTbTidRoutes(tbTidRoutes, tbTidHandler)
+
+	func configureTbTidRoutes(group *gin.RouterGroup, handler *handler.TbTidHandler) {
+		group.POST("/create", handler.CreateTbTid)
+		group.POST("/getonebyid", handler.GetOneByID)
+		group.GET("/getall", handler.GetAllTbEntries)
+	}
+*/
+
+/*
+- fungsi NewRepository, NewService, NewHandler
+- adalah contoh penggunaan konsep dependency injection (DI)
+- keuntungannya :
+- Pemahaman Ketergantungan: Membuat struktur dan ketergantungan antar komponen lebih jelas dan mudah dipahami.
+- Penerapan Dependency Injection dapat membantu mencapai desain yang lebih bersih, terstruktur, dan mudah diubah pada aplikasi Anda.
+- membuat sistem lebih fleksibel, mudah diuji, dan mudah dipelihara.
+*/
 func NewService(tbTidRepository Repository) *service {
 	return &service{tbTidRepository}
 }
 
+/*
+- (s *service)
+- ini adalah struct method
+- dengan adanya struct method, maka kita dapat memanggil structnya
+- berikut adalah pemanggilan structnya :
+- unique := s.tbTidRepository.CheckUniqueTidInput(tbTidInput.Tid)
+- alasan kenapa di struct method menggunakan asterik(pointer) adalah :
+- Secara umum, Anda harus menggunakan penerima pointer saat Anda perlu memodifikasi keadaan struct yang dipanggil metode. Jika Anda tidak perlu memodifikasi keadaan struct, Anda dapat menggunakan penerima nilai.
+*/
 func (s *service) Create(tbTidInput TbTidCreateInput) (TbTid, error) {
 	var tbTid TbTid
 
