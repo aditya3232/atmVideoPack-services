@@ -25,6 +25,7 @@
 |   # folder library berisi library yang digunakan di seluruh aplikasi.
 |   # atau tempat paket-paket (libraries) yang digunakan oleh bagian lain dari projek.
 |   # bisa library apa aja. misal mino, jwt, dll
+|   # isinya lebih seperti helper untuk libray
 |
 ├── log
 |   # folder log  berisi fungsi untuk menyimpan log
@@ -33,8 +34,7 @@
 ├── middleware
 |   # folder middleware berisi middleware yang digunakan di seluruh aplikasi.
 |   # atau fungsi dari library middleware yang di-reuse oleh seluruh aplikasi,
-|   # seperti middleware untuk auth jwt, api-key, cors.
-|   # hampir sama seperti folder library, cuma disini khusus library middleware
+|   # seperti middleware untuk auth jwt, api-key, cors,
 |
 ├── model/
 |   # folder model berisi source kode utama aplikasi. 

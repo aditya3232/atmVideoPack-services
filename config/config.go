@@ -11,6 +11,8 @@ var CONFIG = load()
 type envConfigs struct {
 	DEBUG int `mapstructure:"DEBUG"`
 
+	JWT_KEY string `mapstructure:"JWT_KEY"`
+
 	DB_1_HOST    string `mapstructure:"DB_1_HOST"`
 	DB_1_PORT    string `mapstructure:"DB_1_PORT"`
 	DB_1_USER    string `mapstructure:"DB_1_USER"`
