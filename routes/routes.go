@@ -12,6 +12,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/streaming_cctv"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
+	"github.com/aditya3232/atmVideoPack-services.git/model/users"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,7 @@ func Initialize(router *gin.Engine) {
 	elasticDownloadPlaybackRepository := get_download_playback_from_elastic.NewRepository(connection.ElasticSearch())
 	downloadPlaybackRepository := download_playback.NewRepository(connection.DatabaseMysql())
 	streamingCctvRepository := streaming_cctv.NewRepository(connection.DatabaseMysql())
+	usersRepository := users.NewRepository(connection.DatabaseMysql())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
@@ -34,6 +36,7 @@ func Initialize(router *gin.Engine) {
 	elasticDownloadPlaybackService := get_download_playback_from_elastic.NewService(elasticDownloadPlaybackRepository)
 	downloadPlaybackService := download_playback.NewService(downloadPlaybackRepository, tbTidRepository)
 	streamingCctvService := streaming_cctv.NewService(streamingCctvRepository, tbTidRepository)
+	usersService := users.NewService(usersRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
@@ -43,6 +46,7 @@ func Initialize(router *gin.Engine) {
 	elasticDownloadPlaybackHandler := handler.NewGetDownloadPlaybackFromElasticHandler(elasticDownloadPlaybackService)
 	downloadPlaybackHandler := handler.NewDownloadPlaybackHandler(downloadPlaybackService)
 	streamingCctvHandler := handler.NewStreamingCctvHandler(streamingCctvService)
+	usersHandler := handler.NewUsersHandler(usersService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -62,6 +66,7 @@ func Initialize(router *gin.Engine) {
 	elasticStatusMcDetectionRoutes := api.Group("/statusmcdetection", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	elasticDownloadPlaybackRoutes := api.Group("/downloadplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	downloadPlaybackRoutes := api.Group("/downloadvideoplayback")
+	usersRoutes := api.Group("/users")
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
@@ -70,6 +75,7 @@ func Initialize(router *gin.Engine) {
 	configureElasticStatusMcDetectionIndexRoutes(elasticStatusMcDetectionRoutes, elasticStatusMcDetectionHandler)
 	configureElasticDownloadPlaybackIndexRoutes(elasticDownloadPlaybackRoutes, elasticDownloadPlaybackHandler)
 	configureDownloadPlaybackRoutes(downloadPlaybackRoutes, downloadPlaybackHandler)
+	configureUsersRoutes(usersRoutes, usersHandler)
 
 }
 
@@ -102,4 +108,14 @@ func configureElasticDownloadPlaybackIndexRoutes(group *gin.RouterGroup, handler
 
 func configureDownloadPlaybackRoutes(group *gin.RouterGroup, handler *handler.DownloadPlaybackHandler) {
 	group.GET("/:videos/:tid/:yyyymmdd/:filename", handler.DownloadPlayback)
+}
+
+func configureUsersRoutes(group *gin.RouterGroup, handler *handler.UsersHandler) {
+	// group.POST("/login", handler.Login)
+	// group.POST("/register", handler.Register)
+	group.GET("/getall", handler.GetAll)
+	group.GET("/getone/:id", handler.GetOneById)
+	group.POST("/create", handler.Create)
+	group.PUT("/update/:id", handler.Update)
+	group.DELETE("/delete", handler.Delete)
 }
