@@ -81,7 +81,16 @@ func (r *repository) Update(user Users) (Users, error) {
 		user.Password = string(password)
 	}
 
-	err := r.db.Save(&user).Error
+	user = Users{
+		ID:         user.ID,
+		RoleId:     user.RoleId,
+		Name:       user.Name,
+		Password:   user.Password,
+		FotoProfil: user.FotoProfil,
+		UpdatedAt:  user.UpdatedAt,
+	}
+
+	err := r.db.Model(&user).Where("id = ?", user.ID).Updates(&user).Error
 	if err != nil {
 		return user, err
 	}

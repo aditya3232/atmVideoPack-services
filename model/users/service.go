@@ -1,8 +1,10 @@
 package users
 
 import (
+	"errors"
 	"time"
 
+	"github.com/aditya3232/atmVideoPack-services.git/constant"
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
 )
 
@@ -64,7 +66,7 @@ func (s *service) Create(input UsersInput) (Users, error) {
 func (s *service) Update(input UsersUpdateInput) (Users, error) {
 	_, err := s.userRepository.GetOne(input.ID)
 	if err != nil {
-		return Users{}, err
+		return Users{}, errors.New(constant.CannotProcessRequest)
 	}
 
 	now := time.Now()
@@ -75,13 +77,16 @@ func (s *service) Update(input UsersUpdateInput) (Users, error) {
 	}
 
 	user := Users{
-		ID:         input.ID,
-		RoleId:     input.RoleId,
-		Name:       input.Name,
-		Username:   input.Username,
-		Password:   input.Password,
-		FotoProfil: input.FotoProfil,
-		UpdatedAt:  &now,
+		ID:        input.ID,
+		RoleId:    input.RoleId,
+		Name:      input.Name,
+		Password:  input.Password,
+		UpdatedAt: &now,
+	}
+
+	// Set FotoProfil hanya jika input.FotoProfil tidak kosong
+	if input.FotoProfil != "" {
+		user.FotoProfil = input.FotoProfil
 	}
 
 	newUser, err := s.userRepository.Update(user)
