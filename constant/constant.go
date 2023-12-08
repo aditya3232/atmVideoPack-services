@@ -40,6 +40,7 @@ const (
 	CannotProcessRequest = "Cannot process request."
 
 	// InvalidRequest is the message returned when the request is invalid
+	// Pesan ini cocok digunakan ketika server menolak permintaan karena data yang dikirim oleh pengguna tidak memenuhi persyaratan atau validasi tertentu.
 	InvalidRequest = "Invalid request."
 
 	// SuccessCreateData is the message returned when the data is successfully created

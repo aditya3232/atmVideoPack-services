@@ -108,12 +108,12 @@ func Infof(format string, args ...interface{}) {
 */
 func Error(args ...interface{}) {
 	New.Error(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.ErrorLevel, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
 	New.Errorf(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.ErrorLevel, args...)
 }
 
 /*
@@ -122,12 +122,12 @@ func Errorf(format string, args ...interface{}) {
 */
 func Fatal(args ...interface{}) {
 	New.Fatal(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.FatalLevel, args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
 	New.Fatalf(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.FatalLevel, args...)
 }
 
 /*
@@ -136,12 +136,12 @@ func Fatalf(format string, args ...interface{}) {
 */
 func Panic(args ...interface{}) {
 	New.Panic(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.PanicLevel, args...)
 }
 
 func Panicf(format string, args ...interface{}) {
 	New.Panicf(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.PanicLevel, args...)
 }
 
 /*
@@ -150,12 +150,12 @@ func Panicf(format string, args ...interface{}) {
 */
 func Warn(args ...interface{}) {
 	New.Warn(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.WarnLevel, args...)
 }
 
 func Warnf(format string, args ...interface{}) {
 	New.Warnf(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.WarnLevel, args...)
 }
 
 /*
@@ -164,12 +164,12 @@ func Warnf(format string, args ...interface{}) {
 */
 func Debug(args ...interface{}) {
 	New.Debug(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.DebugLevel, args...)
 }
 
 func Debugf(format string, args ...interface{}) {
 	New.Debugf(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.DebugLevel, args...)
 }
 
 /*
@@ -178,12 +178,12 @@ func Debugf(format string, args ...interface{}) {
 */
 func Trace(args ...interface{}) {
 	New.Trace(args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.TraceLevel, args...)
 }
 
 func Tracef(format string, args ...interface{}) {
 	New.Tracef(format, args...)
-	sendLogToElasticsearch(logrus.InfoLevel, args...)
+	sendLogToElasticsearch(logrus.TraceLevel, args...)
 }
 
 /*

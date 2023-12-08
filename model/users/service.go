@@ -2,10 +2,12 @@ package users
 
 import (
 	"errors"
+	"strings"
 	"time"
 
-	"github.com/aditya3232/atmVideoPack-services.git/constant"
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
+	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service interface {
@@ -47,12 +49,41 @@ func (s *service) GetOne(input UsersGetOneByIdInput) (Users, error) {
 }
 
 func (s *service) Create(input UsersInput) (Users, error) {
+	// Check unique username
+	_, err := s.userRepository.GetUsername(input.Username)
+	if err == nil {
+		errorMessage := strings.ToLower("Username must unique")
+		log_function.Error(errorMessage)
+		return Users{}, errors.New(errorMessage)
+	}
+
+	now := time.Now()
+
+	if input.RoleId == nil || *input.RoleId == 0 {
+		roleId := 14
+		input.RoleId = &roleId
+	}
+
+	if input.Password != "" {
+		password, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
+		if err != nil {
+			log_function.Error(err)
+			return Users{}, err
+		}
+
+		input.Password = string(password)
+	}
+
 	user := Users{
-		RoleId:     input.RoleId,
-		Name:       input.Name,
-		Username:   input.Username,
-		Password:   input.Password,
-		FotoProfil: input.FotoProfil,
+		RoleId:    input.RoleId,
+		Name:      input.Name,
+		Username:  input.Username,
+		Password:  input.Password,
+		CreatedAt: &now,
+	}
+
+	if input.FotoProfil != "" {
+		user.FotoProfil = input.FotoProfil
 	}
 
 	newUser, err := s.userRepository.Create(user)
@@ -66,7 +97,7 @@ func (s *service) Create(input UsersInput) (Users, error) {
 func (s *service) Update(input UsersUpdateInput) (Users, error) {
 	_, err := s.userRepository.GetOne(input.ID)
 	if err != nil {
-		return Users{}, errors.New(constant.CannotProcessRequest)
+		return Users{}, err
 	}
 
 	now := time.Now()
@@ -74,6 +105,15 @@ func (s *service) Update(input UsersUpdateInput) (Users, error) {
 	if input.RoleId == nil || *input.RoleId == 0 {
 		roleId := 14
 		input.RoleId = &roleId
+	}
+
+	if input.Password != "" {
+		password, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
+		if err != nil {
+			return Users{}, err
+		}
+
+		input.Password = string(password)
 	}
 
 	user := Users{
@@ -98,7 +138,12 @@ func (s *service) Update(input UsersUpdateInput) (Users, error) {
 }
 
 func (s *service) Delete(input UsersGetOneByIdInput) error {
-	err := s.userRepository.Delete(input.ID)
+	_, err := s.userRepository.GetOne(input.ID)
+	if err != nil {
+		return err
+	}
+
+	err = s.userRepository.Delete(input.ID)
 	if err != nil {
 		return err
 	}

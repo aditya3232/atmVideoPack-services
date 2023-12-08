@@ -1,11 +1,15 @@
 package users
 
+import "time"
+
 type UsersGetFormatter struct {
-	ID         int    `json:"id"`
-	RoleId     *int   `json:"role_id"`
-	Name       string `json:"name"`
-	Username   string `json:"username"`
-	FotoProfil string `json:"foto_profil"`
+	ID         int        `json:"id"`
+	RoleId     *int       `json:"role_id"`
+	Name       string     `json:"name"`
+	Username   string     `json:"username"`
+	FotoProfil string     `json:"foto_profil"`
+	CreatedAt  *time.Time `json:"created_at"`
+	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
 type UsersCreateFormatter struct {
@@ -18,18 +22,22 @@ type UsersCreateFormatter struct {
 }
 
 type UsersUpdateFormatter struct {
-	ID         int    `json:"id"`
-	RoleId     *int   `json:"role_id"`
-	Name       string `json:"name"`
-	Password   string `json:"password"`
-	FotoProfil string `json:"foto_profil"`
+	ID         int        `json:"id"`
+	RoleId     *int       `json:"role_id"`
+	Name       string     `json:"name"`
+	Password   string     `json:"password"`
+	FotoProfil string     `json:"foto_profil"`
+	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
 func UsersCreateFormat(users Users) UsersCreateFormatter {
 	var formatter UsersCreateFormatter
 
+	formatter.ID = users.ID
+	formatter.RoleId = users.RoleId
 	formatter.Name = users.Name
 	formatter.Username = users.Username
+	formatter.Password = users.Password
 	formatter.FotoProfil = users.FotoProfil
 
 	return formatter
@@ -43,6 +51,7 @@ func UsersUpdateFormat(users Users) UsersUpdateFormatter {
 	formatter.Name = users.Name
 	formatter.Password = users.Password
 	formatter.FotoProfil = users.FotoProfil
+	formatter.UpdatedAt = users.UpdatedAt
 
 	return formatter
 }
@@ -55,6 +64,8 @@ func UsersGetFormat(users Users) UsersGetFormatter {
 	formatter.Name = users.Name
 	formatter.Username = users.Username
 	formatter.FotoProfil = users.FotoProfil
+	formatter.CreatedAt = users.CreatedAt
+	formatter.UpdatedAt = users.UpdatedAt
 
 	return formatter
 }

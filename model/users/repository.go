@@ -2,7 +2,6 @@ package users
 
 import (
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +11,7 @@ type Repository interface {
 	Create(Users) (Users, error)
 	Update(Users) (Users, error)
 	Delete(id int) error
+	GetUsername(userName string) (Users, error) // for check unique username
 }
 
 type repository struct {
@@ -63,7 +63,16 @@ func (r *repository) GetOne(id int) (Users, error) {
 }
 
 func (r *repository) Create(user Users) (Users, error) {
-	err := r.db.Create(&user).Error
+	user = Users{
+		RoleId:     user.RoleId,
+		Name:       user.Name,
+		Username:   user.Username,
+		Password:   user.Password,
+		FotoProfil: user.FotoProfil,
+		CreatedAt:  user.CreatedAt,
+	}
+
+	err := r.db.Model(&user).Create(&user).Error
 	if err != nil {
 		return user, err
 	}
@@ -72,15 +81,6 @@ func (r *repository) Create(user Users) (Users, error) {
 }
 
 func (r *repository) Update(user Users) (Users, error) {
-	if user.Password != "" {
-		password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
-		if err != nil {
-			return user, err
-		}
-
-		user.Password = string(password)
-	}
-
 	user = Users{
 		ID:         user.ID,
 		RoleId:     user.RoleId,
@@ -107,4 +107,15 @@ func (r *repository) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (r *repository) GetUsername(userName string) (Users, error) {
+	var user Users
+
+	err := r.db.Where("username = ?", userName).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
