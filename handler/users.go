@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/aditya3232/atmVideoPack-services.git/constant"
@@ -38,39 +37,37 @@ func (h *UsersHandler) GetAll(c *gin.Context) {
 	if err != nil {
 		// errors := helper.FormatError(err)
 		// errorMessage := gin.H{"errors": errors}
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getall")
-		errors := constant.DataNotFound
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		endpoint := c.Request.URL.Path
+		message := constant.DataNotFound
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		log_function.Error(message, err, endpoint, errorCode, ipAddress)
 
-		response := helper.APIDataTableResponse(errors, http.StatusNotFound, helper.Pagination{}, errorMessage)
+		response := helper.APIDataTableResponse(message, http.StatusNotFound, helper.Pagination{}, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	if len(users) == 0 {
 		// errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getall")
-		errors := constant.DataNotFound
-		errorCode := fmt.Sprintf("Status: %d", http.StatusNotFound)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		endpoint := c.Request.URL.Path
+		message := constant.InvalidRequest
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		log_function.Error(message, err, endpoint, errorCode, ipAddress)
 
-		response := helper.APIDataTableResponse(errors, http.StatusNotFound, helper.Pagination{}, errorMessage)
+		response := helper.APIDataTableResponse(message, http.StatusNotFound, helper.Pagination{}, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
-	endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getall")
-	info := constant.DataFound
-	infoCode := fmt.Sprintf("Status: %d", http.StatusOK)
-	ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-	log_function.Info(info, endpoint, infoCode, ipAddress)
+	endpoint := c.Request.URL.Path
+	message := constant.SuccessCreateData
+	infoCode := http.StatusCreated
+	ipAddress := c.ClientIP()
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
-	response := helper.APIDataTableResponse(info, http.StatusOK, page, users_model.UsersGetAllFormat(users))
+	response := helper.APIDataTableResponse(message, http.StatusOK, page, users_model.UsersGetAllFormat(users))
 	c.JSON(response.Meta.Code, response)
 }
 
@@ -79,10 +76,10 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 
 	err := c.ShouldBindUri(&input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getone/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.InvalidRequest
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -93,10 +90,10 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 
 	user, err := h.usersService.GetOne(input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getone/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.DataNotFound
-		errorCode := fmt.Sprintf("Status: %d", http.StatusNotFound)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusNotFound
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -106,10 +103,10 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 	}
 
 	if user.ID == 0 {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getone/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.DataNotFound
-		errorCode := fmt.Sprintf("Status: %d", http.StatusNotFound)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusNotFound
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -118,10 +115,10 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 		return
 	}
 
-	endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/getone/:id")
+	endpoint := c.Request.URL.Path
 	info := constant.DataFound
-	infoCode := fmt.Sprintf("Status: %d", http.StatusOK)
-	ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+	infoCode := http.StatusOK
+	ipAddress := c.ClientIP()
 	log_function.Info(info, endpoint, infoCode, ipAddress)
 
 	response := helper.APIResponse(info, http.StatusOK, users_model.UsersGetFormat(user))
@@ -133,39 +130,39 @@ func (h *UsersHandler) Create(c *gin.Context) {
 
 	err := c.ShouldBindWith(&input, binding.Form)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/create")
-		errors := constant.InvalidRequest
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		endpoint := c.Request.URL.Path
+		message := constant.InvalidRequest
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		errorMessage := gin.H{"message": message}
+		log_function.Error(message, err, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, errorMessage)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	newUser, err := h.usersService.Create(input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/create")
-		errors := constant.FailedCreateData
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		endpoint := c.Request.URL.Path
+		message := constant.InvalidRequest
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		errorMessage := gin.H{"message": message}
+		log_function.Error(message, err, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, errorMessage)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
-	endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/create")
-	info := constant.SuccessCreateData
-	infoCode := fmt.Sprintf("Status: %d", http.StatusCreated)
-	ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
-	log_function.Info(info, endpoint, infoCode, ipAddress)
+	endpoint := c.Request.URL.Path
+	message := constant.SuccessCreateData
+	infoCode := http.StatusCreated
+	ipAddress := c.ClientIP()
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
-	response := helper.APIResponse(info, http.StatusCreated, users_model.UsersCreateFormat(newUser))
+	response := helper.APIResponse(message, http.StatusCreated, users_model.UsersCreateFormat(newUser))
 	c.JSON(response.Meta.Code, response)
 }
 
@@ -175,10 +172,10 @@ func (h *UsersHandler) Update(c *gin.Context) {
 
 	err := c.ShouldBindUri(&id)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/update/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.InvalidRequest
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -191,10 +188,10 @@ func (h *UsersHandler) Update(c *gin.Context) {
 
 	err = c.ShouldBindWith(&input, binding.Form)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/update/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.InvalidRequest
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -205,10 +202,10 @@ func (h *UsersHandler) Update(c *gin.Context) {
 
 	newUser, err := h.usersService.Update(input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/update/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.FailedUpdateData
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -217,10 +214,10 @@ func (h *UsersHandler) Update(c *gin.Context) {
 		return
 	}
 
-	endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/update/:id")
+	endpoint := c.Request.URL.Path
 	info := constant.SuccessUpdateData
-	infoCode := fmt.Sprintf("Status: %d", http.StatusOK)
-	ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+	infoCode := http.StatusOK
+	ipAddress := c.ClientIP()
 	log_function.Info(info, endpoint, infoCode, ipAddress)
 
 	response := helper.APIResponse(info, http.StatusOK, users_model.UsersUpdateFormat(newUser))
@@ -232,10 +229,10 @@ func (h *UsersHandler) Delete(c *gin.Context) {
 
 	err := c.ShouldBindUri(&input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/delete/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.InvalidRequest
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -246,10 +243,10 @@ func (h *UsersHandler) Delete(c *gin.Context) {
 
 	err = h.usersService.Delete(input)
 	if err != nil {
-		endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/delete/:id")
+		endpoint := c.Request.URL.Path
 		errors := constant.FailedDeleteData
-		errorCode := fmt.Sprintf("Status: %d", http.StatusBadRequest)
-		ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
 		errorMessage := gin.H{"errors": errors}
 		log_function.Error(errors, endpoint, errorCode, ipAddress)
 
@@ -258,10 +255,10 @@ func (h *UsersHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	endpoint := fmt.Sprintf("endpoint: %s", "/api/atmvideopack/v1/users/delete/:id")
+	endpoint := c.Request.URL.Path
 	info := constant.SuccessDeleteData
-	infoCode := fmt.Sprintf("Status: %d", http.StatusNoContent)
-	ipAddress := fmt.Sprintf("from ip address: %s", c.ClientIP())
+	infoCode := http.StatusNoContent
+	ipAddress := c.ClientIP()
 	log_function.Info(info, endpoint, infoCode, ipAddress)
 
 	response := helper.APIResponse(info, http.StatusNoContent, nil)

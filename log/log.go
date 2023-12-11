@@ -15,6 +15,12 @@ import (
 
 var New = logrus.New()
 
+type LogArgs struct {
+	Endpoint      string `json:"endpoint"`
+	Status        string `json:"status"`
+	FromIpAddress string `json:"from_ip_address"`
+}
+
 // func init() {
 // 	log := New
 
@@ -51,12 +57,16 @@ func sendLogToElasticsearch(level logrus.Level, args ...interface{}) {
 	// data["fields"] = logrus.Fields{}
 	data["level"] = level.String()
 	data["message"] = args[0]
+	data["error"] = args[1]
+	data["endpoint"] = args[2]
+	data["status_code"] = args[3]
+	data["from_ip_address"] = args[4]
 	data["timestamp"] = time.Now().Format("15:04:05 02-01-2006")
 
 	// Add the args to the JSON payload
-	if len(args) > 1 {
-		data["args"] = args[1:]
-	}
+	// if len(args) > 1 {
+	// 	data["args"] = args[1:]
+	// }
 
 	// Serialize the data to JSON
 	if err = json.NewEncoder(&buf).Encode(data); err != nil {

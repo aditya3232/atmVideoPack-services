@@ -2,11 +2,9 @@ package users
 
 import (
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/aditya3232/atmVideoPack-services.git/helper"
-	log_function "github.com/aditya3232/atmVideoPack-services.git/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -52,9 +50,7 @@ func (s *service) Create(input UsersInput) (Users, error) {
 	// Check unique username
 	_, err := s.userRepository.GetUsername(input.Username)
 	if err == nil {
-		errorMessage := strings.ToLower("Username must unique")
-		log_function.Error(errorMessage)
-		return Users{}, errors.New(errorMessage)
+		return Users{}, errors.New("username must unique")
 	}
 
 	now := time.Now()
@@ -67,7 +63,6 @@ func (s *service) Create(input UsersInput) (Users, error) {
 	if input.Password != "" {
 		password, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 		if err != nil {
-			log_function.Error(err)
 			return Users{}, err
 		}
 
