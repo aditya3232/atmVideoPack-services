@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/aditya3232/atmVideoPack-services.git/constant"
@@ -18,6 +19,8 @@ import (
 
 	- time="2023-12-07T11:19:23+07:00" level=error msg="username must unique"
 	- time="2023-12-07T11:19:23+07:00" level=error msg="Failed to create new data. (user)"
+
+	- tampilan data errors tidak usah ditampilkan di user
 */
 
 type UsersHandler struct {
@@ -39,9 +42,10 @@ func (h *UsersHandler) GetAll(c *gin.Context) {
 		// errorMessage := gin.H{"errors": errors}
 		endpoint := c.Request.URL.Path
 		message := constant.DataNotFound
-		errorCode := http.StatusBadRequest
+		errorCode := http.StatusNotFound
 		ipAddress := c.ClientIP()
-		log_function.Error(message, err, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
 		response := helper.APIDataTableResponse(message, http.StatusNotFound, helper.Pagination{}, nil)
 		c.JSON(response.Meta.Code, response)
@@ -51,10 +55,11 @@ func (h *UsersHandler) GetAll(c *gin.Context) {
 	if len(users) == 0 {
 		// errorMessage := gin.H{"errors": "Entry tidak ditemukan"}
 		endpoint := c.Request.URL.Path
-		message := constant.InvalidRequest
-		errorCode := http.StatusBadRequest
+		message := constant.DataNotFound
+		errorCode := http.StatusNotFound
 		ipAddress := c.ClientIP()
-		log_function.Error(message, err, endpoint, errorCode, ipAddress)
+		errors := fmt.Sprintf("Users not found")
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
 		response := helper.APIDataTableResponse(message, http.StatusNotFound, helper.Pagination{}, nil)
 		c.JSON(response.Meta.Code, response)
@@ -62,8 +67,8 @@ func (h *UsersHandler) GetAll(c *gin.Context) {
 	}
 
 	endpoint := c.Request.URL.Path
-	message := constant.SuccessCreateData
-	infoCode := http.StatusCreated
+	message := constant.DataFound
+	infoCode := http.StatusOK
 	ipAddress := c.ClientIP()
 	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
@@ -77,13 +82,13 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 	err := c.ShouldBindUri(&input)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.InvalidRequest
+		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -91,37 +96,37 @@ func (h *UsersHandler) GetOne(c *gin.Context) {
 	user, err := h.usersService.GetOne(input)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.DataNotFound
+		message := constant.DataNotFound
 		errorCode := http.StatusNotFound
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusNotFound, errorMessage)
+		response := helper.APIResponse(message, http.StatusNotFound, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	if user.ID == 0 {
 		endpoint := c.Request.URL.Path
-		errors := constant.DataNotFound
+		message := constant.DataNotFound
 		errorCode := http.StatusNotFound
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := fmt.Sprintf("Users not found")
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusNotFound, errorMessage)
+		response := helper.APIResponse(message, http.StatusNotFound, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	endpoint := c.Request.URL.Path
-	info := constant.DataFound
+	message := constant.DataFound
 	infoCode := http.StatusOK
 	ipAddress := c.ClientIP()
-	log_function.Info(info, endpoint, infoCode, ipAddress)
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
-	response := helper.APIResponse(info, http.StatusOK, users_model.UsersGetFormat(user))
+	response := helper.APIResponse(message, http.StatusOK, users_model.UsersGetFormat(user))
 	c.JSON(response.Meta.Code, response)
 }
 
@@ -134,10 +139,10 @@ func (h *UsersHandler) Create(c *gin.Context) {
 		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"message": message}
-		log_function.Error(message, err, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(message, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -148,10 +153,10 @@ func (h *UsersHandler) Create(c *gin.Context) {
 		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"message": message}
-		log_function.Error(message, err, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(message, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -173,13 +178,13 @@ func (h *UsersHandler) Update(c *gin.Context) {
 	err := c.ShouldBindUri(&id)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.InvalidRequest
+		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -189,13 +194,13 @@ func (h *UsersHandler) Update(c *gin.Context) {
 	err = c.ShouldBindWith(&input, binding.Form)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.InvalidRequest
+		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -203,24 +208,24 @@ func (h *UsersHandler) Update(c *gin.Context) {
 	newUser, err := h.usersService.Update(input)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.FailedUpdateData
+		message := constant.FailedUpdateData
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	endpoint := c.Request.URL.Path
-	info := constant.SuccessUpdateData
+	message := constant.SuccessUpdateData
 	infoCode := http.StatusOK
 	ipAddress := c.ClientIP()
-	log_function.Info(info, endpoint, infoCode, ipAddress)
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
-	response := helper.APIResponse(info, http.StatusOK, users_model.UsersUpdateFormat(newUser))
+	response := helper.APIResponse(message, http.StatusOK, users_model.UsersUpdateFormat(newUser))
 	c.JSON(response.Meta.Code, response)
 }
 
@@ -230,13 +235,13 @@ func (h *UsersHandler) Delete(c *gin.Context) {
 	err := c.ShouldBindUri(&input)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.InvalidRequest
+		message := constant.InvalidRequest
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
@@ -244,23 +249,23 @@ func (h *UsersHandler) Delete(c *gin.Context) {
 	err = h.usersService.Delete(input)
 	if err != nil {
 		endpoint := c.Request.URL.Path
-		errors := constant.FailedDeleteData
+		message := constant.FailedDeleteData
 		errorCode := http.StatusBadRequest
 		ipAddress := c.ClientIP()
-		errorMessage := gin.H{"errors": errors}
-		log_function.Error(errors, endpoint, errorCode, ipAddress)
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
 
-		response := helper.APIResponse(errors, http.StatusBadRequest, errorMessage)
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
 		c.JSON(response.Meta.Code, response)
 		return
 	}
 
 	endpoint := c.Request.URL.Path
-	info := constant.SuccessDeleteData
+	message := constant.SuccessDeleteData
 	infoCode := http.StatusNoContent
 	ipAddress := c.ClientIP()
-	log_function.Info(info, endpoint, infoCode, ipAddress)
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
 
-	response := helper.APIResponse(info, http.StatusNoContent, nil)
+	response := helper.APIResponse(message, http.StatusNoContent, nil)
 	c.JSON(response.Meta.Code, response)
 }
