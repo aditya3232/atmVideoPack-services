@@ -72,6 +72,11 @@ func (s *service) Update(input RolesUpdateInput) (Roles, error) {
 		return Roles{}, err
 	}
 
+	_, err = s.rolesRepository.GetRoleName(input.Name)
+	if err == nil {
+		return Roles{}, errors.New("role name must unique")
+	}
+
 	now := time.Now()
 
 	role := Roles{

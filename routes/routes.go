@@ -10,6 +10,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/permissions"
 	"github.com/aditya3232/atmVideoPack-services.git/model/roles"
 	"github.com/aditya3232/atmVideoPack-services.git/model/streaming_cctv"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
@@ -29,6 +30,7 @@ func Initialize(router *gin.Engine) {
 	streamingCctvRepository := streaming_cctv.NewRepository(connection.DatabaseMysql())
 	usersRepository := users.NewRepository(connection.DatabaseMysql())
 	rolesRepository := roles.NewRepository(connection.DatabaseMysql())
+	permissionsRepository := permissions.NewRepository(connection.DatabaseMysql())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
@@ -40,6 +42,7 @@ func Initialize(router *gin.Engine) {
 	streamingCctvService := streaming_cctv.NewService(streamingCctvRepository, tbTidRepository)
 	usersService := users.NewService(usersRepository)
 	rolesService := roles.NewService(rolesRepository)
+	permissionsService := permissions.NewService(permissionsRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
@@ -51,6 +54,7 @@ func Initialize(router *gin.Engine) {
 	streamingCctvHandler := handler.NewStreamingCctvHandler(streamingCctvService)
 	usersHandler := handler.NewUsersHandler(usersService)
 	rolesHandler := handler.NewRolesHandler(rolesService)
+	permissionsHandler := handler.NewPermissionsHandler(permissionsService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -71,6 +75,7 @@ func Initialize(router *gin.Engine) {
 	downloadPlaybackRoutes := api.Group("/downloadvideoplayback")
 	usersRoutes := api.Group("/users")
 	rolesRoutes := api.Group("/roles")
+	permissionsRoutes := api.Group("/permissions")
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
@@ -81,6 +86,7 @@ func Initialize(router *gin.Engine) {
 	configureDownloadPlaybackRoutes(downloadPlaybackRoutes, downloadPlaybackHandler)
 	configureUsersRoutes(usersRoutes, usersHandler)
 	configureRolesRoutes(rolesRoutes, rolesHandler)
+	configurePermissionsRoutes(permissionsRoutes, permissionsHandler)
 
 }
 
@@ -126,6 +132,14 @@ func configureUsersRoutes(group *gin.RouterGroup, handler *handler.UsersHandler)
 }
 
 func configureRolesRoutes(group *gin.RouterGroup, handler *handler.RolesHandler) {
+	group.GET("/getall", handler.GetAll)
+	group.GET("/getone/:id", handler.GetOne)
+	group.POST("/create", handler.Create)
+	group.PUT("/update/:id", handler.Update)
+	group.DELETE("/delete/:id", handler.Delete)
+}
+
+func configurePermissionsRoutes(group *gin.RouterGroup, handler *handler.PermissionsHandler) {
 	group.GET("/getall", handler.GetAll)
 	group.GET("/getone/:id", handler.GetOne)
 	group.POST("/create", handler.Create)
