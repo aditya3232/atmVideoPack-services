@@ -13,12 +13,13 @@ type UsersGetFormatter struct {
 }
 
 type UsersCreateFormatter struct {
-	ID         int    `json:"id"`
-	RoleId     *int   `json:"role_id"`
-	Name       string `json:"name"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	FotoProfil string `json:"foto_profil"`
+	ID         int        `json:"id"`
+	RoleId     *int       `json:"role_id"`
+	Name       string     `json:"name"`
+	Username   string     `json:"username"`
+	Password   string     `json:"password"`
+	FotoProfil string     `json:"foto_profil"`
+	CreatedAt  *time.Time `json:"created_at"`
 }
 
 type UsersUpdateFormatter struct {
@@ -39,6 +40,7 @@ func UsersCreateFormat(users Users) UsersCreateFormatter {
 	formatter.Username = users.Username
 	formatter.Password = users.Password
 	formatter.FotoProfil = users.FotoProfil
+	formatter.CreatedAt = users.CreatedAt
 
 	return formatter
 }
