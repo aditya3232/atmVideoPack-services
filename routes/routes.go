@@ -77,7 +77,7 @@ func Initialize(router *gin.Engine) {
 	elasticDownloadPlaybackRoutes := api.Group("/downloadplayback", middleware.ApiKeyMiddleware(config.CONFIG.API_KEY))
 	downloadPlaybackRoutes := api.Group("/downloadvideoplayback")
 	usersRoutes := api.Group("/users")
-	rolesRoutes := api.Group("/roles")
+	rolesRoutes := api.Group("/roles", middleware.AuthMiddleware(usersService))
 	permissionsRoutes := api.Group("/permissions")
 	authRoutes := api.Group("/auth")
 
@@ -127,8 +127,6 @@ func configureDownloadPlaybackRoutes(group *gin.RouterGroup, handler *handler.Do
 }
 
 func configureUsersRoutes(group *gin.RouterGroup, handler *handler.UsersHandler) {
-	// group.POST("/login", handler.Login)
-	// group.POST("/register", handler.Register)
 	group.GET("/getall", handler.GetAll)
 	group.GET("/getone/:id", handler.GetOne)
 	group.POST("/create", handler.Create)
