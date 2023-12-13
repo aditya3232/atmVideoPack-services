@@ -154,4 +154,5 @@ func configurePermissionsRoutes(group *gin.RouterGroup, handler *handler.Permiss
 
 func configureAuthRoutes(group *gin.RouterGroup, handler *handler.AuthHandler) {
 	group.POST("/login", handler.Login)
+	group.POST("/logout", handler.Logout)
 }

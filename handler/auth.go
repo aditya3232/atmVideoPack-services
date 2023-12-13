@@ -62,3 +62,43 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	response := helper.APIResponse(message, http.StatusOK, auth.LoginFormat(newToken, expires))
 	c.JSON(response.Meta.Code, response)
 }
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	var input auth.LogoutInput
+
+	if input.Token == " " {
+		endpoint := c.Request.URL.Path
+		message := fmt.Sprintf("Logout gagal")
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		errors := fmt.Sprintf("Token tidak valid")
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
+
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
+		c.JSON(response.Meta.Code, response)
+		return
+	}
+
+	err := h.authService.Logout(input)
+	if err != nil {
+		endpoint := c.Request.URL.Path
+		message := fmt.Sprintf("Logout gagal")
+		errorCode := http.StatusBadRequest
+		ipAddress := c.ClientIP()
+		errors := helper.FormatError(err)
+		log_function.Error(message, errors, endpoint, errorCode, ipAddress)
+
+		response := helper.APIResponse(message, http.StatusBadRequest, nil)
+		c.JSON(response.Meta.Code, response)
+		return
+	}
+
+	endpoint := c.Request.URL.Path
+	message := fmt.Sprintf("Logout berhasil")
+	infoCode := http.StatusOK
+	ipAddress := c.ClientIP()
+	log_function.Info(message, "", endpoint, infoCode, ipAddress)
+
+	response := helper.APIResponse(message, http.StatusOK, nil)
+	c.JSON(response.Meta.Code, response)
+}

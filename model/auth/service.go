@@ -5,12 +5,13 @@ import (
 
 	jwt "github.com/aditya3232/atmVideoPack-services.git/library/jwt"
 	"github.com/aditya3232/atmVideoPack-services.git/model/users"
+	users_model "github.com/aditya3232/atmVideoPack-services.git/model/users"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Service interface {
 	Login(input LoginInput) (users.Users, error)
-	// Logout(input LogoutInput) error
+	Logout(input LogoutInput) error
 }
 
 type service struct {
@@ -57,4 +58,31 @@ func (s *service) Login(input LoginInput) (users.Users, error) {
 	}
 
 	return loginUser, nil
+}
+
+func (s *service) Logout(input LogoutInput) error {
+	userID, err := jwt.GetUserIDFromToken(input.Token)
+	if err != nil {
+		return err
+	}
+
+	users, err := s.usersRepository.GetOne(userID)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+
+	entityUsers := users_model.Users{
+		ID:            users.ID,
+		RememberToken: "",
+		UpdatedAt:     &now,
+	}
+
+	_, err = s.usersRepository.Update(entityUsers)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
