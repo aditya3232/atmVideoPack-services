@@ -12,6 +12,7 @@ type Repository interface {
 	Update(Permissions) (Permissions, error)
 	Delete(id int) error
 	GetPermissionName(permissionName string) (Permissions, error)
+	GetPermissionNameById(id int) (Permissions, error)
 }
 
 type repository struct {
@@ -111,4 +112,15 @@ func (r *repository) GetPermissionName(permissionName string) (Permissions, erro
 	}
 
 	return permission, nil
+}
+
+func (r *repository) GetPermissionNameById(id int) (Permissions, error) {
+	var permissions Permissions
+
+	err := r.db.Where("id = ?", id).First(&permissions).Error
+	if err != nil {
+		return permissions, err
+	}
+
+	return permissions, nil
 }

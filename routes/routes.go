@@ -11,7 +11,9 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_status_mc_detection_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_vandal_detection_from_elastic"
+	"github.com/aditya3232/atmVideoPack-services.git/model/permission_role"
 	"github.com/aditya3232/atmVideoPack-services.git/model/permissions"
+	"github.com/aditya3232/atmVideoPack-services.git/model/profile"
 	"github.com/aditya3232/atmVideoPack-services.git/model/roles"
 	"github.com/aditya3232/atmVideoPack-services.git/model/streaming_cctv"
 	"github.com/aditya3232/atmVideoPack-services.git/model/tb_tid"
@@ -32,6 +34,7 @@ func Initialize(router *gin.Engine) {
 	usersRepository := users.NewRepository(connection.DatabaseMysql())
 	rolesRepository := roles.NewRepository(connection.DatabaseMysql())
 	permissionsRepository := permissions.NewRepository(connection.DatabaseMysql())
+	permissionsRoleRepository := permission_role.NewRepository(connection.DatabaseMysql())
 
 	// Initialize services
 	tbTidService := tb_tid.NewService(tbTidRepository)
@@ -45,6 +48,7 @@ func Initialize(router *gin.Engine) {
 	rolesService := roles.NewService(rolesRepository)
 	permissionsService := permissions.NewService(permissionsRepository)
 	authService := auth.NewService(usersRepository)
+	profileService := profile.NewService(usersRepository, rolesRepository, permissionsRepository, permissionsRoleRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
@@ -58,6 +62,7 @@ func Initialize(router *gin.Engine) {
 	rolesHandler := handler.NewRolesHandler(rolesService)
 	permissionsHandler := handler.NewPermissionsHandler(permissionsService)
 	authHandler := handler.NewAuthHandler(authService)
+	profileHandler := handler.NewProfileHandler(profileService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -80,6 +85,7 @@ func Initialize(router *gin.Engine) {
 	rolesRoutes := api.Group("/roles", middleware.AuthMiddleware(usersService))
 	permissionsRoutes := api.Group("/permissions")
 	authRoutes := api.Group("/auth")
+	profileRoutes := api.Group("/profile", middleware.AuthMiddleware(usersService))
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
@@ -92,6 +98,7 @@ func Initialize(router *gin.Engine) {
 	configureRolesRoutes(rolesRoutes, rolesHandler)
 	configurePermissionsRoutes(permissionsRoutes, permissionsHandler)
 	configureAuthRoutes(authRoutes, authHandler)
+	configureProfileRoutes(profileRoutes, profileHandler)
 
 }
 
@@ -153,4 +160,8 @@ func configurePermissionsRoutes(group *gin.RouterGroup, handler *handler.Permiss
 func configureAuthRoutes(group *gin.RouterGroup, handler *handler.AuthHandler) {
 	group.POST("/login", handler.Login)
 	group.POST("/logout", handler.Logout)
+}
+
+func configureProfileRoutes(group *gin.RouterGroup, handler *handler.ProfileHandler) {
+	group.GET("/getprofile", handler.GetProfile)
 }
