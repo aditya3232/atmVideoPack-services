@@ -11,7 +11,7 @@ import (
 
 type Service interface {
 	Login(input LoginInput) (users.Users, error)
-	Logout(input LogoutInput) error
+	Logout(token string) error
 }
 
 type service struct {
@@ -60,8 +60,8 @@ func (s *service) Login(input LoginInput) (users.Users, error) {
 	return loginUser, nil
 }
 
-func (s *service) Logout(input LogoutInput) error {
-	userID, err := jwt.GetUserIDFromToken(input.Token)
+func (s *service) Logout(token string) error {
+	userID, err := jwt.GetUserIDFromToken(token)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (s *service) Logout(input LogoutInput) error {
 
 	entityUsers := users_model.Users{
 		ID:            users.ID,
-		RememberToken: "",
+		RememberToken: " ",
 		UpdatedAt:     &now,
 	}
 

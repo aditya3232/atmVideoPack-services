@@ -64,9 +64,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	var input auth.LogoutInput
+	token := c.GetHeader("Authorization")
 
-	if input.Token == " " {
+	if token == " " {
 		endpoint := c.Request.URL.Path
 		message := fmt.Sprintf("Logout gagal")
 		errorCode := http.StatusBadRequest
@@ -79,7 +79,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	err := h.authService.Logout(input)
+	err := h.authService.Logout(token)
 	if err != nil {
 		endpoint := c.Request.URL.Path
 		message := fmt.Sprintf("Logout gagal")
