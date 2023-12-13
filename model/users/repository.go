@@ -82,12 +82,13 @@ func (r *repository) Create(user Users) (Users, error) {
 
 func (r *repository) Update(user Users) (Users, error) {
 	user = Users{
-		ID:         user.ID,
-		RoleId:     user.RoleId,
-		Name:       user.Name,
-		Password:   user.Password,
-		FotoProfil: user.FotoProfil,
-		UpdatedAt:  user.UpdatedAt,
+		ID:            user.ID,
+		RoleId:        user.RoleId,
+		Name:          user.Name,
+		Password:      user.Password,
+		RememberToken: user.RememberToken, // dari login
+		FotoProfil:    user.FotoProfil,
+		UpdatedAt:     user.UpdatedAt,
 	}
 
 	err := r.db.Model(&user).Where("id = ?", user.ID).Updates(&user).Error

@@ -100,6 +100,10 @@ func ValidateToken(encodedToken string) (*jwt.Token, error) {
 
 }
 
+/*
+- ini digunakan untuk memvalidasi apakah jwt token yang diberikan benar
+- dipakai saat ada orang yg memalsukan token
+*/
 func GetUserIDFromToken(encodedToken string) (int, error) {
 	// Parse the JWT token
 	token, err := ValidateToken(encodedToken)

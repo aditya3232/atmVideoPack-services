@@ -5,6 +5,7 @@ import (
 	"github.com/aditya3232/atmVideoPack-services.git/connection"
 	"github.com/aditya3232/atmVideoPack-services.git/handler"
 	"github.com/aditya3232/atmVideoPack-services.git/middleware"
+	"github.com/aditya3232/atmVideoPack-services.git/model/auth"
 	"github.com/aditya3232/atmVideoPack-services.git/model/download_playback"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_download_playback_from_elastic"
 	"github.com/aditya3232/atmVideoPack-services.git/model/get_human_detection_from_elastic"
@@ -43,6 +44,7 @@ func Initialize(router *gin.Engine) {
 	usersService := users.NewService(usersRepository)
 	rolesService := roles.NewService(rolesRepository)
 	permissionsService := permissions.NewService(permissionsRepository)
+	authService := auth.NewService(usersRepository)
 
 	// Initialize handlers
 	tbTidHandler := handler.NewTbTidHandler(tbTidService)
@@ -55,6 +57,7 @@ func Initialize(router *gin.Engine) {
 	usersHandler := handler.NewUsersHandler(usersService)
 	rolesHandler := handler.NewRolesHandler(rolesService)
 	permissionsHandler := handler.NewPermissionsHandler(permissionsService)
+	authHandler := handler.NewAuthHandler(authService)
 
 	// Configure routes
 	api := router.Group("/api/atmvideopack/v1")
@@ -76,6 +79,7 @@ func Initialize(router *gin.Engine) {
 	usersRoutes := api.Group("/users")
 	rolesRoutes := api.Group("/roles")
 	permissionsRoutes := api.Group("/permissions")
+	authRoutes := api.Group("/auth")
 
 	configureTbTidRoutes(tbTidRoutes, tbTidHandler)
 	configureStreamingCctvRoutes(streamingCctvRoutes, streamingCctvHandler)
@@ -87,6 +91,7 @@ func Initialize(router *gin.Engine) {
 	configureUsersRoutes(usersRoutes, usersHandler)
 	configureRolesRoutes(rolesRoutes, rolesHandler)
 	configurePermissionsRoutes(permissionsRoutes, permissionsHandler)
+	configureAuthRoutes(authRoutes, authHandler)
 
 }
 
@@ -145,4 +150,8 @@ func configurePermissionsRoutes(group *gin.RouterGroup, handler *handler.Permiss
 	group.POST("/create", handler.Create)
 	group.PUT("/update/:id", handler.Update)
 	group.DELETE("/delete/:id", handler.Delete)
+}
+
+func configureAuthRoutes(group *gin.RouterGroup, handler *handler.AuthHandler) {
+	group.POST("/login", handler.Login)
 }

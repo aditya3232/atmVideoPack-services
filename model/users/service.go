@@ -112,11 +112,12 @@ func (s *service) Update(input UsersUpdateInput) (Users, error) {
 	}
 
 	user := Users{
-		ID:        input.ID,
-		RoleId:    input.RoleId,
-		Name:      input.Name,
-		Password:  input.Password,
-		UpdatedAt: &now,
+		ID:            input.ID,
+		RoleId:        input.RoleId,
+		Name:          input.Name,
+		Password:      input.Password,
+		RememberToken: input.RememberToken, // dari login
+		UpdatedAt:     &now,
 	}
 
 	// Set FotoProfil hanya jika input.FotoProfil tidak kosong
